@@ -4,8 +4,7 @@ import type { NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
-  
-  // Create a Supabase client configured to use cookies
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -23,50 +22,57 @@ export async function middleware(request: NextRequest) {
       },
     }
   )
-  
-  // Refresh session if expired
+
   await supabase.auth.getSession()
-  
-  // Optional: Check if user is authenticated for protected routes
+
   const { pathname } = request.nextUrl
-  const isAuthRoute = pathname.startsWith('/auth')
+  
+  // Define protected routes (those under (main) group)
+  const isMainRoute = pathname.startsWith('/dashboard') || 
+                     pathname.startsWith('/messages')
+  
+  // Define auth routes (those under (auth) group)
+  const isAuthRoute = pathname.startsWith('/login') || 
+                     pathname.startsWith('/register') ||
+                     pathname.startsWith('/forgot-password')
+  
   const isApiRoute = pathname.startsWith('/api')
   const isPublicRoute = pathname === '/'
-  
-  if (!isAuthRoute && !isApiRoute && !isPublicRoute) {
+
+  // Handle protected routes
+  if (isMainRoute) {
     const { data: { session } } = await supabase.auth.getSession()
     
     if (!session) {
-      // Create a new URL object using the request's origin
-      const redirectUrl = new URL('/auth/login', request.nextUrl.origin)
-      // Ensure we're using the same protocol (http/https) as the request
+      const redirectUrl = new URL('/login', request.nextUrl.origin)
       redirectUrl.protocol = request.nextUrl.protocol
       return NextResponse.redirect(redirectUrl)
     }
   }
-  
-  // If user is signed in and trying to access auth routes, redirect to home
+
+  // Handle auth routes when user is already authenticated
   if (isAuthRoute) {
     const { data: { session } } = await supabase.auth.getSession()
     if (session) {
-      const redirectUrl = new URL('/', request.nextUrl.origin)
+      const redirectUrl = new URL('/dashboard', request.nextUrl.origin)
       redirectUrl.protocol = request.nextUrl.protocol
       return NextResponse.redirect(redirectUrl)
     }
   }
-  
+
   return response
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
+    // Match dashboard and messages routes
+    '/dashboard/:path*',
+    '/messages/:path*',
+    // Match auth routes
+    '/login',
+    '/register',
+    '/forgot-password',
+    // Match API routes
+    '/api/:path*',
   ],
 }
