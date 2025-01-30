@@ -1,5 +1,6 @@
-// middleware.ts
+// app/auth/signout/route.ts
 import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -11,17 +12,18 @@ const COOKIE_OPTIONS = {
   domain: process.env.NODE_ENV === 'production' ? '.pijin.xyz' : undefined,
 } as const
 
-export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
-
+export async function POST(request: NextRequest) {
   try {
+    const cookieStore = cookies()
+    const response = NextResponse.redirect(new URL('/login', request.url))
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           get(name: string) {
-            return request.cookies.get(name)?.value
+            return cookieStore.get(name)?.value
           },
           set(name: string, value: string, options: Partial<typeof COOKIE_OPTIONS>) {
             response.cookies.set(name, value, { ...COOKIE_OPTIONS, ...options })
@@ -33,26 +35,11 @@ export async function middleware(request: NextRequest) {
       }
     )
 
-    const { data: { session } } = await supabase.auth.getSession()
-
-    if (!session) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
+    await supabase.auth.signOut()
 
     return response
   } catch (error) {
-    console.error('Middleware error:', error)
-    return NextResponse.redirect(new URL('/login', request.url))
+    console.error('Sign out error:', error)
+    return NextResponse.redirect(new URL('/auth/error', request.url))
   }
-}
-
-export const config = {
-  matcher: [
-    // Protected routes
-    '/dashboard/:path*',
-    '/messages/:path*',
-    '/api/:path*',
-    '/settings/:path*',
-    '/profile/:path*',
-  ]
 }

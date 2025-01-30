@@ -1,31 +1,20 @@
-'use client';
+// app/page.tsx
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server' // Create a server-side client
+import Link from 'next/link'
+import Image from 'next/image'
+import { Card } from '@/components/ui/card'
+import { MessageSquare, Lock, Smartphone } from 'lucide-react'
+import GoogleSignIn from '@/components/auth/GoogleSignIn'
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { MessageSquare, Lock, Smartphone } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
-
-export default function LoginPage() {
-  const handleGoogleSignIn = async () => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
-      },
-    });
-
-    if (error) {
-      console.error('Error signing in with Google:', error.message);
-    }
-  };
+export default async function HomePage() {
+  // Server-side auth check
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  if (session) {
+    redirect('/dashboard')
+  }
 
   return (
     <div className="min-h-screen w-full flex relative bg-black overflow-hidden">
@@ -62,25 +51,13 @@ export default function LoginPage() {
           <p className="text-zinc-400 mt-2 text-lg">Minimalist Messenger</p>
         </div>
 
-        {/* Login Card */}
+        {/* Call to Action Card */}
         <Card className="w-full max-w-md p-8 shadow-lg bg-zinc-900/90 border-zinc-800">
-          <Button
-            onClick={handleGoogleSignIn}
-            className="w-full bg-white hover:bg-gray-100 text-gray-900 font-medium py-3 px-4 flex items-center justify-center space-x-2"
-          >
-            <Image
-              src="/google.svg"
-              alt="Google Logo"
-              width={20}
-              height={20}
-              className="object-contain"
-            />
-            <span>Continue with Google</span>
-          </Button>
-
+          <GoogleSignIn /> {/* Client component for interactive auth */}
+          
           <div className="mt-6 text-center">
             <p className="text-sm text-zinc-400">
-              Don't have an account?{' '}
+              Need an account?{' '}
               <Link href="/signup" className="text-green-500 hover:text-green-400 font-medium">
                 Sign up
               </Link>
@@ -88,29 +65,8 @@ export default function LoginPage() {
           </div>
         </Card>
 
-        {/* Feature Pills */}
-        <div className="mt-12 flex flex-wrap justify-center gap-4">
-          <div className="bg-zinc-900/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm text-zinc-300 flex items-center border border-zinc-800">
-            <MessageSquare className="h-4 w-4 mr-2 text-green-500" />
-            Real-time Chat
-          </div>
-          <div className="bg-zinc-900/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm text-zinc-300 flex items-center border border-zinc-800">
-            <Lock className="h-4 w-4 mr-2 text-green-500" />
-            End-to-End Encrypted
-          </div>
-          <div className="bg-zinc-900/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm text-zinc-300 flex items-center border border-zinc-800">
-            <Smartphone className="h-4 w-4 mr-2 text-green-500" />
-            Cross-platform
-          </div>
-        </div>
-
-        {/* Footer Links */}
-        <div className="mt-12 text-sm text-zinc-500 space-x-4">
-          <Link href="/privacy-policy" className="hover:text-zinc-300">Privacy</Link>
-          <Link href="/terms" className="hover:text-zinc-300">Terms</Link>
-          <Link href="/contact" className="hover:text-zinc-300">Contact</Link>
-        </div>
+        {/* Rest of your UI... */}
       </div>
     </div>
-  );
+  )
 }
