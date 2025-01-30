@@ -72,6 +72,7 @@ export const config = {
     '/login',
     '/register',
     '/forgot-password',
+    '/auth/callback',
     // Match API routes
     '/api/:path*',
   ],

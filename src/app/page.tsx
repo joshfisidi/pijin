@@ -4,15 +4,27 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { MessageSquare, Lock, Smartphone, Mail, ArrowRight } from 'lucide-react';
+import { MessageSquare, Lock, Smartphone } from 'lucide-react';
+import { createClient } from '@/lib/supabase';
 
 export default function LoginPage() {
-  const handleGoogleSignIn = () => {
-    // Implement Google sign-in logic here
-    console.log('Google sign-in clicked');
+  const handleGoogleSignIn = async () => {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+
+    if (error) {
+      console.error('Error signing in with Google:', error.message);
+    }
   };
 
   return (
@@ -52,28 +64,19 @@ export default function LoginPage() {
 
         {/* Login Card */}
         <Card className="w-full max-w-md p-8 shadow-lg bg-zinc-900/90 border-zinc-800">
-          {/* Google Sign In Button */}
-
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Input
-                type="email"
-                placeholder="Email"
-                className="bg-zinc-900 border-zinc-700 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-            <div className="space-y-2">
-              <Input
-                type="password"
-                placeholder="Password"
-                className="bg-zinc-900 border-zinc-700 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-            <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
-              Log in
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+          <Button
+            onClick={handleGoogleSignIn}
+            className="w-full bg-white hover:bg-gray-100 text-gray-900 font-medium py-3 px-4 flex items-center justify-center space-x-2"
+          >
+            <Image
+              src="/google.svg"
+              alt="Google Logo"
+              width={20}
+              height={20}
+              className="object-contain"
+            />
+            <span>Continue with Google</span>
+          </Button>
 
           <div className="mt-6 text-center">
             <p className="text-sm text-zinc-400">
