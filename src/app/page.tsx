@@ -1,17 +1,37 @@
 // app/page.tsx
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server' // Create a server-side client
+import { createServerClient } from '@supabase/ssr'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card } from '@/components/ui/card'
 import { MessageSquare, Lock, Smartphone } from 'lucide-react'
 import GoogleSignIn from '@/components/auth/GoogleSignIn'
+import { cookies } from 'next/headers'
+
 
 export default async function HomePage() {
   // Server-side auth check
-  const supabase = createClient()
+  const cookieStore = cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+        set(name: string, value: string, options: any) {
+          cookieStore.set(name, value, options)
+        },
+        remove(name: string, options: any) {
+          cookieStore.delete(name, options)
+        }
+      }
+    }
+  )
+
   const { data: { session } } = await supabase.auth.getSession()
-  
+
   if (session) {
     redirect('/dashboard')
   }
