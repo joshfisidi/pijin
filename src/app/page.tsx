@@ -1,6 +1,6 @@
 // app/page.tsx
 import { redirect } from 'next/navigation'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card } from '@/components/ui/card'
@@ -8,13 +8,14 @@ import { MessageSquare, Lock, Smartphone } from 'lucide-react'
 import GoogleSignIn from '@/components/auth/GoogleSignIn'
 
 export default async function HomePage() {
-  try {
-    const supabase = await createServerSupabaseClient()
-    const { data: { session } } = await supabase.auth.getSession()
+  const supabase = await createClient()
 
-    if (session) {
-      redirect('/dashboard')
-    }
+  // Use getUser instead of getSession for better security
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  if (user && !error) {
+    redirect('/dashboard')
+  }
 
     return (
       <div className="min-h-screen w-full flex relative bg-black overflow-hidden">
@@ -67,8 +68,4 @@ export default async function HomePage() {
         </div>
       </div>
     )
-  } catch (error) {
-    console.error('Home page error:', error)
-    return null // Or an error component
-  }
 }

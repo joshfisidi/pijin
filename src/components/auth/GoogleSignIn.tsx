@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/utils/supabase/client'
 
 export default function GoogleSignIn() {
   const handleGoogleSignIn = async () => {
