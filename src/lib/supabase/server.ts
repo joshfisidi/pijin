@@ -1,16 +1,10 @@
 // lib/supabase.ts
-import { createServerClient } from '@supabase/ssr'
-import type { CookieStore } from 'next/headers'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
-  path: '/',
-  domain: process.env.NODE_ENV === 'production' ? '.pijin.xyz' : undefined,
-} as const
+export function createServerSupabaseClient() {
+  const cookieStore = cookies()
 
-export function getSupabaseServer(cookieStore: CookieStore, response?: Response) {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -19,17 +13,13 @@ export function getSupabaseServer(cookieStore: CookieStore, response?: Response)
         get(name: string) {
           return cookieStore.get(name)?.value
         },
-        set(name: string, value: string, options: Partial<typeof COOKIE_OPTIONS>) {
-          if (response) {
-            response.headers.append('Set-Cookie', `${name}=${value}`)
-          }
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set(name, value, options)
         },
-        remove(name: string, options: Partial<typeof COOKIE_OPTIONS>) {
-          if (response) {
-            response.headers.append('Set-Cookie', `${name}=; Max-Age=0`)
-          }
-        },
-      },
+        remove(name: string, options: CookieOptions) {
+          cookieStore.delete(name, options)
+        }
+      }
     }
   )
 }
