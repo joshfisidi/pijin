@@ -1,20 +1,16 @@
 // middleware.ts
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
-  path: '/',
-  domain: process.env.NODE_ENV === 'production' ? '.pijin.xyz' : undefined,
-} as const
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
-
   try {
+    let response = NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -23,11 +19,11 @@ export async function middleware(request: NextRequest) {
           get(name: string) {
             return request.cookies.get(name)?.value
           },
-          set(name: string, value: string, options: Partial<typeof COOKIE_OPTIONS>) {
-            response.cookies.set(name, value, { ...COOKIE_OPTIONS, ...options })
+          set(name: string, value: string, options: CookieOptions) {
+            response.cookies.set(name, value, options)
           },
-          remove(name: string, options: Partial<typeof COOKIE_OPTIONS>) {
-            response.cookies.delete(name, options)
+          remove(name: string, options: CookieOptions) {
+            response.cookies.delete(name)
           },
         },
       }
@@ -35,20 +31,18 @@ export async function middleware(request: NextRequest) {
 
     const { data: { session } } = await supabase.auth.getSession()
 
-    if (!session) {
+    if (!session && !request.nextUrl.pathname.startsWith('/login')) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
 
     return response
   } catch (error) {
-    console.error('Middleware error:', error)
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }
 
 export const config = {
   matcher: [
-    // Protected routes
     '/dashboard/:path*',
     '/messages/:path*',
     '/api/:path*',

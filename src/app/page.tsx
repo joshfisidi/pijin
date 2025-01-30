@@ -1,92 +1,74 @@
 // app/page.tsx
 import { redirect } from 'next/navigation'
-import { createServerClient } from '@supabase/ssr'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card } from '@/components/ui/card'
 import { MessageSquare, Lock, Smartphone } from 'lucide-react'
 import GoogleSignIn from '@/components/auth/GoogleSignIn'
-import { cookies } from 'next/headers'
-
 
 export default async function HomePage() {
-  // Server-side auth check
-  const cookieStore = cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          cookieStore.set(name, value, options)
-        },
-        remove(name: string, options: any) {
-          cookieStore.delete(name, options)
-        }
-      }
+  try {
+    const supabase = await createServerSupabaseClient()
+    const { data: { session } } = await supabase.auth.getSession()
+
+    if (session) {
+      redirect('/dashboard')
     }
-  )
 
-  const { data: { session } } = await supabase.auth.getSession()
-
-  if (session) {
-    redirect('/dashboard')
-  }
-
-  return (
-    <div className="min-h-screen w-full flex relative bg-black overflow-hidden">
-      {/* Background Features Animation */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="animate-pulse absolute top-1/4 left-1/4">
-          <MessageSquare className="h-32 w-32 text-green-500" />
+    return (
+      <div className="min-h-screen w-full flex relative bg-black overflow-hidden">
+        {/* Background Features Animation */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="animate-pulse absolute top-1/4 left-1/4">
+            <MessageSquare className="h-32 w-32 text-green-500" />
+          </div>
+          <div className="animate-pulse absolute top-2/3 right-1/4">
+            <Lock className="h-32 w-32 text-green-500" />
+          </div>
+          <div className="animate-pulse absolute bottom-1/4 left-1/2">
+            <Smartphone className="h-32 w-32 text-green-500" />
+          </div>
         </div>
-        <div className="animate-pulse absolute top-2/3 right-1/4">
-          <Lock className="h-32 w-32 text-green-500" />
-        </div>
-        <div className="animate-pulse absolute bottom-1/4 left-1/2">
-          <Smartphone className="h-32 w-32 text-green-500" />
-        </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="relative w-full flex flex-col items-center justify-center p-4">
-        {/* Logo and Brand */}
-        <div className="mb-8 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="relative w-32 h-32">
-              <Image
-                src="/logo.png"
-                alt="Pijin Logo"
-                width={128}
-                height={128}
-                className="object-contain"
-                priority
-                unoptimized
-              />
+        {/* Main Content */}
+        <div className="relative w-full flex flex-col items-center justify-center p-4">
+          {/* Logo and Brand */}
+          <div className="mb-8 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="relative w-32 h-32">
+                <Image
+                  src="/logo.png"
+                  alt="Pijin Logo"
+                  width={128}
+                  height={128}
+                  className="object-contain"
+                  priority
+                  unoptimized
+                />
+              </div>
             </div>
+            <p className="text-zinc-400 mt-2 text-lg">Minimalist Messenger</p>
           </div>
-          <p className="text-zinc-400 mt-2 text-lg">Minimalist Messenger</p>
+
+          {/* Call to Action Card */}
+          <Card className="w-full max-w-md p-8 shadow-lg bg-zinc-900/90 border-zinc-800">
+            <GoogleSignIn />
+            
+            <div className="mt-6 text-center">
+              <p className="text-sm text-zinc-400">
+                Need an account?{' '}
+                <Link href="/signup" className="text-green-500 hover:text-green-400 font-medium">
+                  Sign up
+                </Link>
+              </p>
+            </div>
+          </Card>
         </div>
-
-        {/* Call to Action Card */}
-        <Card className="w-full max-w-md p-8 shadow-lg bg-zinc-900/90 border-zinc-800">
-          <GoogleSignIn /> {/* Client component for interactive auth */}
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-zinc-400">
-              Need an account?{' '}
-              <Link href="/signup" className="text-green-500 hover:text-green-400 font-medium">
-                Sign up
-              </Link>
-            </p>
-          </div>
-        </Card>
-
-        {/* Rest of your UI... */}
       </div>
-    </div>
-  )
+    )
+  } catch (error) {
+    console.error('Home page error:', error)
+    return null // Or an error component
+  }
 }

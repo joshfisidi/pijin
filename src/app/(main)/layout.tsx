@@ -1,49 +1,26 @@
-import Link from 'next/link';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
-
-async function getSession() {
-  const cookieStore = cookies();
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-
-      },
-    }
-  );
-  
-  const { data: { session } } = await supabase.auth.getSession();
-  return session;
-}
-
-// Rest of your MainLayout component remains the same...
+// app/(main)/layout.tsx
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 export default async function MainLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const session = await getSession();
-  
+  const supabase = await createServerSupabaseClient()
+  const { data: { session } } = await supabase.auth.getSession()
+
   if (!session) {
-    redirect('/auth/login');
+    redirect('/login')
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Main content */}
       <main className="flex-1 container mx-auto px-4 py-8">
         {children}
       </main>
 
-      {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4">
           <div className="flex justify-around py-3">
@@ -80,5 +57,5 @@ export default async function MainLayout({
         </div>
       </nav>
     </div>
-  );
+  )
 }
