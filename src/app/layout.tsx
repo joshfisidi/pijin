@@ -42,7 +42,6 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'Pijin',
   },
-  mobile: 'true',
 };
 
 export default function RootLayout({

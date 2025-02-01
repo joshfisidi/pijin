@@ -1,6 +1,6 @@
 // app/page.tsx
 import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/utils/supabase/client' // Changed from server.ts to client.ts
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card } from '@/components/ui/card'
@@ -8,7 +8,7 @@ import { MessageSquare, Lock, Smartphone } from 'lucide-react'
 import GoogleSignIn from '@/components/auth/GoogleSignIn'
 
 export default async function HomePage() {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   // Use getUser instead of getSession for better security
   const { data: { user }, error } = await supabase.auth.getUser()
