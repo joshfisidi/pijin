@@ -1,4 +1,4 @@
-// middleware.ts
+// utils/supabase/server.ts
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
