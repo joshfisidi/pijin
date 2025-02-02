@@ -1,42 +1,39 @@
 // components/auth/GoogleSignIn.tsx
 'use client'
 
-import { Button } from '@/components/ui/button'
-import Image from 'next/image'
-import { createClient } from '@/utils/supabase/client'
+import * as React from "react"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
 
 export default function GoogleSignIn() {
-  const handleGoogleSignIn = async () => {
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
-      },
-    })
-
-    if (error) {
-      console.error('Error signing in with Google:', error.message)
+  async function handleGoogleSignIn() {
+    try {
+      const response = await fetch("/auth/google/signin", {
+        method: "POST",
+      })
+      const data = await response.json()
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      console.error("Error signing in with Google:", error)
     }
   }
 
   return (
     <Button
+      variant="outline"
       onClick={handleGoogleSignIn}
-      className="w-full bg-white hover:bg-gray-100 text-gray-900 font-medium py-3 px-4 flex items-center justify-center space-x-2"
+      className="w-full bg-white text-black hover:bg-gray-50"
     >
       <Image
         src="/google.svg"
         alt="Google Logo"
         width={20}
         height={20}
-        className="object-contain"
+        className="mr-2"
       />
-      <span>Continue with Google</span>
+      Continue with Google
     </Button>
   )
 }
