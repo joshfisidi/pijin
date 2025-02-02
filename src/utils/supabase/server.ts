@@ -2,7 +2,9 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-export function createClient() {
+export async function createClient() {
+  const cookieStore = await cookies()
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -10,7 +12,7 @@ export function createClient() {
       cookies: {
         get(name: string) {
           try {
-            const cookie = cookies().get(name)
+            const cookie = cookieStore.get(name)
             return cookie?.value
           } catch (error) {
             return undefined
@@ -18,14 +20,14 @@ export function createClient() {
         },
         set(name: string, value: string, options: CookieOptions) {
           try {
-            cookies().set({ name, value, ...options })
+            cookieStore.set({ name, value, ...options })
           } catch (error) {
             // Handle the error case when running in a read-only context
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
-            cookies().set({ name, value: '', ...options })
+            cookieStore.set({ name, value: '', ...options })
           } catch (error) {
             // Handle the error case when running in a read-only context
           }
@@ -36,7 +38,7 @@ export function createClient() {
 }
 
 export async function getSession() {
-  const supabase = createClient()
+  const supabase = await createClient()
   try {
     const {
       data: { session },

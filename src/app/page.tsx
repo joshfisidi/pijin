@@ -4,11 +4,11 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import GoogleSignIn from "@/components/auth/GoogleSignIn"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { createClient } from "@/utils/supabase/server"
 
 export default async function Home() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { session } } = await supabase.auth.getSession()
 
   if (session) {
