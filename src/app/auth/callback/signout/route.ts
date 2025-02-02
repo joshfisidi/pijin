@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Sign out from Supabase
     await supabase.auth.signOut()
