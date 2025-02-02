@@ -1,45 +1,25 @@
 // app/auth/signout/route.ts
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
-  path: '/',
-  domain: process.env.NODE_ENV === 'production' ? '.pijin.xyz' : undefined,
-} as const
-
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const response = NextResponse.redirect(new URL('/login', request.url))
-
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return request.cookies.get(name)?.value
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            response.cookies.set(name, value, { ...COOKIE_OPTIONS, ...options })
-          },
-          remove(name: string, options: CookieOptions) {
-            response.cookies.set(name, '', { ...COOKIE_OPTIONS, ...options })
-          },
-        },
-      }
-    )
-
+    const supabase = createClient()
+    
+    // Sign out from Supabase
     await supabase.auth.signOut()
-
+    
+    // Create response with redirect
+    const response = NextResponse.redirect(new URL('/login', request.url))
+    
+    // Clear auth cookies by setting them to expire
+    response.cookies.set('sb-access-token', '', { maxAge: 0 })
+    response.cookies.set('sb-refresh-token', '', { maxAge: 0 })
+    
     return response
   } catch (error) {
-    console.error('Sign out error:', error)
-    return NextResponse.redirect(new URL('/auth/error', request.url))
+    console.error('Error during sign out:', error)
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 }
