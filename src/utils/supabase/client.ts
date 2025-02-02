@@ -8,4 +8,17 @@ export function createClient() {
   )
 }
 
+export async function getSession() {
+  const supabase = createClient()
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+    return session
+  } catch (error) {
+    console.error('Error:', error)
+    return null
+  }
+}
+
 // (You can keep your middleware and other exports here if needed)

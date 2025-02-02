@@ -1,29 +1,31 @@
 // utils/supabase/server.ts
-import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export function createClient() {
-  const cookieStore = cookies()
-
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value
+          try {
+            const cookie = cookies().get(name)
+            return cookie?.value
+          } catch (error) {
+            return undefined
+          }
         },
         set(name: string, value: string, options: CookieOptions) {
           try {
-            cookieStore.set({ name, value, ...options })
+            cookies().set({ name, value, ...options })
           } catch (error) {
             // Handle the error case when running in a read-only context
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
-            cookieStore.set({ name, value: '', ...options })
+            cookies().set({ name, value: '', ...options })
           } catch (error) {
             // Handle the error case when running in a read-only context
           }
@@ -33,25 +35,16 @@ export function createClient() {
   )
 }
 
-export async function middleware(request: NextRequest) {
+export async function getSession() {
+  const supabase = createClient()
   try {
-    const supabase = createClient()
-
-    // Get user without caching
-    const { data: { user }, error } = await supabase.auth.getUser()
-
-    // Handle auth routes
-    if (!user && !request.nextUrl.pathname.startsWith('/login')) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-
-    // Create a response that includes the user's auth state
-    const response = NextResponse.next()
-    
-    return response
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+    return session
   } catch (error) {
-    console.error('Middleware error:', error)
-    return NextResponse.redirect(new URL('/login', request.url))
+    console.error('Error:', error)
+    return null
   }
 }
 
