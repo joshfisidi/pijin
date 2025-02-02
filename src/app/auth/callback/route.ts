@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const cookieStore = cookies()
     const response = NextResponse.redirect(new URL('/dashboard', request.url))
 
     const supabase = createServerClient(
@@ -22,8 +21,7 @@ export async function GET(request: NextRequest) {
       {
         cookies: {
           get(name: string) {
-            const cookie = cookieStore.get(name)
-            return cookie?.value
+            return request.cookies.get(name)?.value
           },
           set(name: string, value: string, options: CookieOptions) {
             response.cookies.set({ name, value, ...options })
