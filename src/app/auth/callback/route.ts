@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
       {
         cookies: {
           get(name: string) {
-            return cookieStore.get(name)?.value
+            const cookie = cookieStore.get(name)
+            return cookie?.value
           },
           set(name: string, value: string, options: CookieOptions) {
             response.cookies.set({ name, value, ...options })
