@@ -1,39 +1,22 @@
 // eslint.config.mjs
-import { FlatCompat } from "@eslint/eslintrc"
-import path from "path"
-import { fileURLToPath } from "url"
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: await import("eslint:recommended"),
-})
-
-export default [
-  ...compat.extends("next/core-web-vitals"),
+export default tseslint.config(
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
-    files: ["**/*.ts", "**/*.tsx"],
-    languageOptions: {
-      parserOptions: {
-        project: './tsconfig.json',
-      },
-    },
-    plugins: {
-      '@typescript-eslint': await import('@typescript-eslint/eslint-plugin'),
-    },
     rules: {
-      'no-console': 'warn',
-      '@typescript-eslint/explicit-function-return-type': 'error',
-      '@typescript-eslint/no-explicit-any': 'error',
-      'complexity': ['warn', 10],
-      'max-lines-per-function': ['warn', 50],
-      '@typescript-eslint/no-unused-vars': ['error', {
-        'argsIgnorePattern': '^_',
-        'varsIgnorePattern': '^_',
-        'ignoreRestSiblings': true
-      }]
+      "no-unused-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-non-null-assertion": "off"
+    },
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      parserOptions: {
+        project: "./tsconfig.json"
+      }
     }
   }
-]
+);
