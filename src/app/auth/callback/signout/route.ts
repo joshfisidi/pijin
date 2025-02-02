@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
             response.cookies.set(name, value, { ...COOKIE_OPTIONS, ...options })
           },
           remove(name: string, options: Partial<typeof COOKIE_OPTIONS>) {
-            response.cookies.delete(name, options)
+            response.cookies.delete({ name, ...options })
           },
         },
       }

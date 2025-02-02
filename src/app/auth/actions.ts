@@ -29,7 +29,7 @@ export async function signIn(formData: FormData) {
           },
           async remove(name: string, options: any) {
             try {
-              cookieStore.delete(name, options)
+              cookieStore.delete({ name, ...options })
             } catch {
               // Ignore cookie errors in middleware
             }
@@ -83,7 +83,7 @@ export async function signOut() {
           },
           async remove(name: string, options: any) {
             try {
-              cookieStore.delete(name, options)
+              cookieStore.delete({ name, ...options })
             } catch {
               // Ignore cookie errors in middleware
             }
