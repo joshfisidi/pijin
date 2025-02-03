@@ -1,106 +1,65 @@
 'use server'
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
+type AuthError = {
+  message: string
+  status?: number
+}
+
 export async function signIn(formData: FormData) {
-  try {
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-    
-    const cookieStore = await cookies()
-    
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          async get(name: string) {
-            const cookie = await cookieStore.get(name)
-            return cookie?.value
-          },
-          async set(name: string, value: string, options: any) {
-            try {
-              cookieStore.set(name, value, options)
-            } catch {
-              // Ignore cookie errors in middleware
-            }
-          },
-          async remove(name: string, options: any) {
-            try {
-              cookieStore.delete({ name, ...options })
-            } catch {
-              // Ignore cookie errors in middleware
-            }
-          },
-        },
-      }
-    )
-
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (signInError) {
-      return { error: signInError.message }
-    }
-
-    // Verify the user is actually signed in
-    const { data: { user }, error: getUserError } = await supabase.auth.getUser()
-    
-    if (getUserError || !user) {
-      return { error: 'Authentication failed' }
-    }
-
-    redirect('/dashboard')
-  } catch (error) {
-    console.error('Sign in error:', error)
-    return { error: 'An unexpected error occurred' }
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+  
+  if (!email || !password) {
+    throw new Error('Email and password are required')
   }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error) {
+    throw error
+  }
+
+  return redirect('/dashboard')
+}
+
+export async function signUp(formData: FormData) {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+  
+  if (!email || !password) {
+    throw new Error('Email and password are required')
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+    },
+  })
+
+  if (error) {
+    throw error
+  }
+
+  return redirect('/auth/verify')
 }
 
 export async function signOut() {
-  try {
-    const cookieStore = await cookies()
-    
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          async get(name: string) {
-            const cookie = await cookieStore.get(name)
-            return cookie?.value
-          },
-          async set(name: string, value: string, options: any) {
-            try {
-              cookieStore.set(name, value, options)
-            } catch {
-              // Ignore cookie errors in middleware
-            }
-          },
-          async remove(name: string, options: any) {
-            try {
-              cookieStore.delete({ name, ...options })
-            } catch {
-              // Ignore cookie errors in middleware
-            }
-          },
-        },
-      }
-    )
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signOut()
 
-    const { error } = await supabase.auth.signOut()
-
-    if (error) {
-      return { error: error.message }
-    }
-
-    redirect('/login')
-  } catch (error) {
-    console.error('Sign out error:', error)
-    return { error: 'An unexpected error occurred' }
+  if (error) {
+    throw error
   }
+
+  return redirect('/login')
 }

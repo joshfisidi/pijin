@@ -14,22 +14,22 @@ export async function createClient() {
           try {
             const cookie = cookieStore.get(name)
             return cookie?.value
-          } catch (error) {
+          } catch {
             return undefined
           }
         },
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            // Handle the error case when running in a read-only context
+          } catch {
+            // Handle read-only context
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            // Handle the error case when running in a read-only context
+          } catch {
+            // Handle read-only context
           }
         },
       },
@@ -44,8 +44,7 @@ export async function getSession() {
       data: { session },
     } = await supabase.auth.getSession()
     return session
-  } catch (error) {
-    console.error('Error:', error)
+  } catch {
     return null
   }
 }
