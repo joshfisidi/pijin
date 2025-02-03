@@ -8,18 +8,24 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code')
 
   if (!code) {
-    return NextResponse.redirect(new URL('/auth/auth-code-error', request.url))
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   try {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     
-    if (error) throw error
+    if (error) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
 
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    // After successful authentication, redirect to dashboard
+    return NextResponse.redirect(new URL('/dashboard', request.url), {
+      // Use 303 to ensure the redirect is followed with a GET request
+      status: 303
+    })
   } catch {
-    // Redirect to error page without logging sensitive auth details
-    return NextResponse.redirect(new URL('/auth/auth-code-error', request.url))
+    // On any error, redirect to login
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 }
