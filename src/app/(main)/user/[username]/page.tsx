@@ -22,11 +22,13 @@ async function getProfile(username: string) {
   return profile
 }
 
-export default async function UserProfilePage({ 
-  params 
-}: { 
-  params: { username: string } 
-}) {
+interface PageProps {
+  params: {
+    username: string
+  }
+}
+
+export default async function UserProfilePage({ params }: PageProps) {
   const profile = await getProfile(params.username)
   
   if (!profile) {
