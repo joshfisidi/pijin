@@ -4,17 +4,24 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import GoogleSignIn from "@/components/auth/GoogleSignIn"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from "@/utils/supabase/client"
 import * as React from "react"
 
 export function LoginForm() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [email, setEmail] = React.useState("")
-  const [password, setPassword] = React.useState("")
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [email, setEmail] = React.useState<string>("")
+  const [password, setPassword] = React.useState<string>("")
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
@@ -22,22 +29,24 @@ export function LoginForm() {
       setIsLoading(true)
       try {
         const supabase = createClient()
-        const { data: { session } } = await supabase.auth.getSession()
-        
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+
         if (session) {
           router.replace("/")
         }
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'Failed to check session')
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : "Failed to check session")
       } finally {
         setIsLoading(false)
       }
     }
-    
+
     checkSession()
   }, [router])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
@@ -52,26 +61,29 @@ export function LoginForm() {
       if (signInError) throw signInError
 
       router.refresh()
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred during sign in')
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "An error occurred during sign in")
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card
+      className="w-full max-w-sm animate-fade-in hover:shadow-lg transition-shadow duration-300 ease-in-out"
+    >
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl">Sign in</CardTitle>
-        <CardDescription>
-          Choose your preferred sign in method
-        </CardDescription>
+        <CardDescription>Choose your preferred sign in method</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <GoogleSignIn />
+        {/* Google sign-in with a slide-in accent */}
+        <div className="animate-slide-in-from-left">
+          <GoogleSignIn />
+        </div>
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
+            <span className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground">
@@ -81,9 +93,7 @@ export function LoginForm() {
         </div>
         <form onSubmit={handleSubmit} className="grid gap-2">
           {error && (
-            <div className="text-sm text-red-500">
-              {error}
-            </div>
+            <div className="text-sm text-red-500 animate-fade-in">{error}</div>
           )}
           <Input
             type="email"
@@ -92,6 +102,7 @@ export function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
             required
+            className="transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-brand"
           />
           <Input
             type="password"
@@ -100,9 +111,14 @@ export function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
             required
+            className="transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-brand"
           />
           <div className="flex items-center space-x-2">
-            <Checkbox id="remember" disabled={isLoading} />
+            <Checkbox
+              id="remember"
+              disabled={isLoading}
+              className="transition-colors duration-200"
+            />
             <label
               htmlFor="remember"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -110,7 +126,11 @@ export function LoginForm() {
               Remember me
             </label>
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="w-full transition-transform duration-200 ease-in-out hover:scale-105"
+            disabled={isLoading}
+          >
             {isLoading ? "Signing in..." : "Sign in"}
           </Button>
         </form>
@@ -119,7 +139,7 @@ export function LoginForm() {
         <p className="px-8 text-center text-sm text-muted-foreground">
           <Link
             href="/auth/register"
-            className="hover:text-brand underline underline-offset-4"
+            className="hover:text-brand underline underline-offset-4 transition-colors duration-200"
           >
             Don&apos;t have an account? Sign up
           </Link>
@@ -127,4 +147,4 @@ export function LoginForm() {
       </CardFooter>
     </Card>
   )
-} 
+}

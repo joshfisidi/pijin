@@ -21,8 +21,12 @@ export async function GET(request: NextRequest) {
 
     // After successful authentication, redirect to dashboard
     return NextResponse.redirect(new URL('/dashboard', request.url), {
-      // Use 303 to ensure the redirect is followed with a GET request
-      status: 303
+      // 303 See Other - use this to change the request method from POST to GET
+      status: 303,
+      // Add cache control headers to prevent caching
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+      }
     })
   } catch {
     // On any error, redirect to login

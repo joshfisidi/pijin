@@ -15,19 +15,10 @@ export default function GoogleSignIn() {
       setError(null)
       const supabase = createClient()
 
-      // Get the current domain
-      const currentDomain = window.location.origin
-      // Always redirect to the primary domain for auth callback
-      const redirectTo = `https://pijin.xyz/auth/callback`
-
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo,
-          queryParams: {
-            // Pass the original domain as state to handle post-auth redirect
-            state: JSON.stringify({ returnTo: currentDomain })
-          }
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       })
       if (error) throw error
