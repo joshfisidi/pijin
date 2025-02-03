@@ -1,6 +1,7 @@
 'use client'
 
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import GoogleSignIn from "@/components/auth/GoogleSignIn"
 import { Button } from "@/components/ui/button"
@@ -66,6 +67,16 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-sm bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl animate-fade-in hover:shadow-2xl transition-shadow duration-300 ease-in-out">
       <CardHeader className="space-y-2 border-b border-gray-100 pb-4">
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/logo.png"
+            alt="Pijin Logo"
+            width={120}
+            height={120}
+            className="animate-fade-in"
+            priority
+          />
+        </div>
         <CardTitle className="text-3xl font-bold text-center text-gray-800">
           Welcome Back
         </CardTitle>
