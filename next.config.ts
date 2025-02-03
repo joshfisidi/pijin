@@ -5,12 +5,7 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@acme-corp/ui", "lucide-react"],
   experimental: {
     serverActions: {
-      allowedOrigins: [
-        "localhost:3000",
-        "10.0.0.153:3000",
-        "pijin.xyz",
-        "pijin.vercel.app"
-      ],
+      allowedOrigins: ["localhost:3000", "pijin.xyz", "pijin.vercel.app"],
     },
   },
   images: {
@@ -27,67 +22,21 @@ const nextConfig: NextConfig = {
       source: '/:path*',
       headers: [
         { key: 'X-DNS-Prefetch-Control', value: 'on' },
+        { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
         { key: 'X-Frame-Options', value: 'DENY' },
         { key: 'X-Content-Type-Options', value: 'nosniff' },
         { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
-        { key: 'Access-Control-Allow-Origin', value: process.env.NODE_ENV === 'production' ? 'https://pijin.xyz,https://pijin.vercel.app' : '*' },
-        { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
-        { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
-        // Updated Permissions-Policy for mobile features
-        { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), accelerometer=(), gyroscope=()' },
-        // Cross-browser compatible CSP
-        {
-          key: 'Content-Security-Policy',
-          value: `
-            default-src 'self';
-            script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:;
-            style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.gstatic.com;
-            img-src 'self' blob: data: https: http: *.googleapis.com *.gstatic.com;
-            font-src 'self' data: https://fonts.gstatic.com https://*.gstatic.com;
-            connect-src 'self' 
-              https://fonts.googleapis.com 
-              https://fonts.gstatic.com 
-              https://pijin.xyz
-              https://pijin.vercel.app
-              http://10.0.0.153:* 
-              https://10.0.0.153:*
-              ws://10.0.0.153:* 
-              wss://10.0.0.153:*
-              http://localhost:* 
-              https://localhost:*
-              ws://localhost:* 
-              wss://localhost:*;
-            object-src 'none';
-            base-uri 'self';
-            form-action 'self';
-            frame-ancestors 'none';
-            media-src 'self' blob: data: https: http:;
-            worker-src 'self' blob:;
-            manifest-src 'self';
-          `.replace(/\s{2,}/g, ' ').trim()
-        },
-        // Cross-browser compatibility headers
-        { key: 'X-Compatible', value: 'IE=edge,chrome=1' },
-        { key: 'Cache-Control', value: 'public, max-age=3600' },
-        // Mobile-specific headers
-        { key: 'viewport-fit', value: 'cover' },
+        { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
       ],
     },
   ],
-  async redirects() {
-    return [
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'host',
-            value: 'pijin.vercel.app',
-          },
-        ],
-        permanent: true,
-        destination: 'https://pijin.xyz/:path*',
-      },
-    ]
+  // Handle domain access with minimal configuration
+  async rewrites() {
+    return {
+      beforeFiles: [],
+      afterFiles: [],
+      fallback: [],
+    };
   },
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
