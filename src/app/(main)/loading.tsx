@@ -20,9 +20,13 @@ export default function Loading() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 space-y-8">
-      <Logo width={150} height={150} />
-      <Progress value={progress} className="w-full max-w-md" />
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <div className="flex flex-col items-center space-y-12 -mt-16">
+        <div className="p-8 rounded-full bg-background/50 backdrop-blur-sm">
+          <Logo width={150} height={150} />
+        </div>
+        <Progress value={progress} className="w-80" />
+      </div>
     </div>
   );
 } 
