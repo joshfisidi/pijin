@@ -19,9 +19,9 @@ import * as React from "react"
 
 export function LoginForm() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [email, setEmail] = React.useState<string>("")
-  const [password, setPassword] = React.useState<string>("")
+  const [isLoading, setIsLoading] = React.useState(false)
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
@@ -32,17 +32,15 @@ export function LoginForm() {
         const {
           data: { session },
         } = await supabase.auth.getSession()
-
         if (session) {
           router.replace("/")
         }
-      } catch (error: unknown) {
-        setError(error instanceof Error ? error.message : "Failed to check session")
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Failed to check session")
       } finally {
         setIsLoading(false)
       }
     }
-
     checkSession()
   }, [router])
 
@@ -50,50 +48,48 @@ export function LoginForm() {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
-
     try {
       const supabase = createClient()
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-
       if (signInError) throw signInError
-
       router.refresh()
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred during sign in")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An error occurred during sign in")
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <Card
-      className="w-full max-w-sm animate-fade-in hover:shadow-lg transition-shadow duration-300 ease-in-out"
-    >
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Sign in</CardTitle>
-        <CardDescription>Choose your preferred sign in method</CardDescription>
+    <Card className="w-full max-w-sm bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl animate-fade-in hover:shadow-2xl transition-shadow duration-300 ease-in-out">
+      <CardHeader className="space-y-2 border-b border-gray-100 pb-4">
+        <CardTitle className="text-3xl font-bold text-center text-gray-800">
+          Welcome Back
+        </CardTitle>
+        <CardDescription className="text-center text-gray-500">
+          Sign in to your account
+        </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
-        {/* Google sign-in with a slide-in accent */}
+      <CardContent className="grid gap-6 p-6">
+        {/* Google sign-in with a modern slide-in accent */}
         <div className="animate-slide-in-from-left">
           <GoogleSignIn />
         </div>
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
+        <div className="relative flex items-center">
+          <div className="flex-grow border-t border-gradient-to-r from-brand to-purple-400" />
+          <span className="mx-4 text-xs text-gray-400 uppercase">
+            Or continue with
+          </span>
+          <div className="flex-grow border-t border-gradient-to-r from-brand to-purple-400" />
         </div>
-        <form onSubmit={handleSubmit} className="grid gap-2">
+        <form onSubmit={handleSubmit} className="grid gap-4">
           {error && (
-            <div className="text-sm text-red-500 animate-fade-in">{error}</div>
+            <div className="text-sm text-red-500 text-center animate-fade-in">
+              {error}
+            </div>
           )}
           <Input
             type="email"
@@ -102,7 +98,7 @@ export function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
             required
-            className="transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-brand"
+            className="transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-brand focus:ring-offset-2"
           />
           <Input
             type="password"
@@ -111,7 +107,7 @@ export function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
             required
-            className="transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-brand"
+            className="transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-brand focus:ring-offset-2"
           />
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -121,7 +117,7 @@ export function LoginForm() {
             />
             <label
               htmlFor="remember"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm font-medium text-gray-700"
             >
               Remember me
             </label>
@@ -135,13 +131,14 @@ export function LoginForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex flex-col gap-2">
-        <p className="px-8 text-center text-sm text-muted-foreground">
+      <CardFooter className="border-t border-gray-100 p-4">
+        <p className="text-center text-sm text-gray-500">
+          Don&apos;t have an account?{" "}
           <Link
             href="/auth/register"
-            className="hover:text-brand underline underline-offset-4 transition-colors duration-200"
+            className="font-semibold text-brand hover:underline transition-colors"
           >
-            Don&apos;t have an account? Sign up
+            Sign up
           </Link>
         </p>
       </CardFooter>
