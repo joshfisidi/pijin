@@ -13,19 +13,51 @@ import { createClient } from '@/utils/supabase/client'
 export function LoginForm() {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(false)
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
+  const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const checkSession = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (session) {
-        router.replace("/")
+      setIsLoading(true)
+      try {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session) {
+          router.replace("/")
+        }
+      } catch (error) {
+        console.error('Session check error:', error)
+      } finally {
+        setIsLoading(false)
       }
     }
     
     checkSession()
   }, [router])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setIsLoading(true)
+
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) throw error
+
+      router.refresh()
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'An error occurred during sign in')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <Card className="w-full max-w-sm">
@@ -47,11 +79,30 @@ export function LoginForm() {
             </span>
           </div>
         </div>
-        <div className="grid gap-2">
-          <Input type="email" placeholder="Email" />
-          <Input type="password" placeholder="Password" />
+        <form onSubmit={handleSubmit} className="grid gap-2">
+          {error && (
+            <div className="text-sm text-red-500">
+              {error}
+            </div>
+          )}
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
+            required
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
+            required
+          />
           <div className="flex items-center space-x-2">
-            <Checkbox id="remember" />
+            <Checkbox id="remember" disabled={isLoading} />
             <label
               htmlFor="remember"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -59,10 +110,12 @@ export function LoginForm() {
               Remember me
             </label>
           </div>
-        </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Signing in..." : "Sign in"}
+          </Button>
+        </form>
       </CardContent>
       <CardFooter className="flex flex-col gap-2">
-        <Button className="w-full">Sign in</Button>
         <p className="px-8 text-center text-sm text-muted-foreground">
           <Link
             href="/auth/register"
