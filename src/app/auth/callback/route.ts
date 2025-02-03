@@ -39,7 +39,7 @@ export async function GET(request: NextRequest, { searchParams }: RouteParams) {
     response.headers.set('Pragma', 'no-cache')
 
     return response
-  } catch (error) {
+  } catch {
     // On any error, redirect to login
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('error', 'Something went wrong')

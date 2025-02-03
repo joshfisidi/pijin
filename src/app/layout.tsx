@@ -27,9 +27,22 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Pijin",
+  title: {
+    template: '%s | Pijin',
+    default: 'Pijin',
+  },
   description: "Connect and collaborate",
   applicationName: 'Pijin',
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/apple-icon.png' },
+    ],
+  },
   formatDetection: {
     telephone: false,
     date: false,
