@@ -6,13 +6,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Send, Home, MessageSquare, User } from "lucide-react";
-import Link from "next/link";
+import { Plus, Send } from "lucide-react";
 
 export default function MessagesPage() {
   return (
-    <div className="flex flex-col h-[100dvh] bg-background">
-      {/* Mobile Header */}
+    <div className="flex flex-col h-full">
+      {/* Header */}
       <Card className="rounded-none border-x-0 border-t-0">
         <CardHeader className="p-4 space-y-0 flex flex-row items-center justify-between">
           <CardTitle className="text-2xl">Messages</CardTitle>
@@ -23,7 +22,7 @@ export default function MessagesPage() {
         </CardHeader>
       </Card>
 
-      {/* Search Bar - Fixed position on mobile */}
+      {/* Search Bar */}
       <Card className="rounded-none border-x-0">
         <CardContent className="p-4">
           <Input
@@ -77,35 +76,6 @@ export default function MessagesPage() {
               <span className="sr-only">Send message</span>
             </Button>
           </form>
-        </CardContent>
-      </Card>
-
-      {/* Mobile Navigation Bar */}
-      <Card className="rounded-none border-x-0 border-b-0 mt-auto">
-        <CardContent className="p-2">
-          <nav className="flex items-center justify-around">
-            <Link 
-              href="/dashboard" 
-              className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground"
-            >
-              <Home className="h-6 w-6" />
-              <span className="text-xs mt-1">Home</span>
-            </Link>
-            <Link 
-              href="/messages" 
-              className="flex flex-col items-center p-2 text-primary"
-            >
-              <MessageSquare className="h-6 w-6" />
-              <span className="text-xs mt-1">Messages</span>
-            </Link>
-            <Link 
-              href="/profile" 
-              className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground"
-            >
-              <User className="h-6 w-6" />
-              <span className="text-xs mt-1">Profile</span>
-            </Link>
-          </nav>
         </CardContent>
       </Card>
     </div>
