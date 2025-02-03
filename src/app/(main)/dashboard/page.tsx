@@ -145,7 +145,7 @@ export default function DashboardPage() {
                 </Button>
               </div>
             </CardContent>
-          </Card>
+      </Card>
         </div>
       </div>
     </div>

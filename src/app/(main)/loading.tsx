@@ -1,12 +1,38 @@
+"use client";
+
+import * as React from "react";
+import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
+
 export default function Loading() {
+  const [progress, setProgress] = React.useState(10);
+
+  React.useEffect(() => {
+    const timer1 = setTimeout(() => setProgress(45), 100);
+    const timer2 = setTimeout(() => setProgress(85), 500);
+    const timer3 = setTimeout(() => setProgress(98), 1000);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, []);
+
   return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <div className="relative">
-        <div className="h-24 w-24 rounded-full border-t-2 border-b-2 border-gray-900 dark:border-white animate-spin"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm text-gray-600 dark:text-gray-400">
-          Loading...
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <Card className="w-full max-w-md p-6 space-y-6">
+        <div className="space-y-2">
+          <div className="h-4 w-3/4 bg-muted animate-pulse rounded" />
+          <div className="h-4 w-1/2 bg-muted animate-pulse rounded" />
         </div>
-      </div>
+        <Progress value={progress} className="w-full" />
+        <div className="space-y-2">
+          <div className="h-4 w-full bg-muted animate-pulse rounded" />
+          <div className="h-4 w-5/6 bg-muted animate-pulse rounded" />
+          <div className="h-4 w-4/6 bg-muted animate-pulse rounded" />
+        </div>
+      </Card>
     </div>
   );
 } 
