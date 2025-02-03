@@ -3,59 +3,36 @@ import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// List of public routes that don't require authentication
-const publicRoutes = ['/', '/login', '/auth/register']
-const authCallbackRoute = '/auth/callback'
+// Protected routes that require authentication
+const protectedRoutes = ['/dashboard', '/settings', '/profile', '/messages']
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Special handling for auth callback
-  if (pathname === authCallbackRoute) {
+  // Only check auth for protected routes
+  if (!protectedRoutes.some(route => pathname.startsWith(route))) {
     return NextResponse.next()
   }
-
-  // Check if the path is in publicRoutes
-  const isPublicRoute = publicRoutes.some(route => pathname === route)
 
   try {
     const supabase = await createClient()
     const { data: { session } } = await supabase.auth.getSession()
 
-    // If user is signed in and trying to access auth pages, redirect to dashboard
-    if (session && (pathname.startsWith('/auth') || pathname === '/login')) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-
-    // Allow access to public routes regardless of auth status
-    if (isPublicRoute) {
-      return NextResponse.next()
-    }
-
-    // If user is not signed in and trying to access protected routes, redirect to login
-    if (!session && !isPublicRoute) {
+    if (!session) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
 
     return NextResponse.next()
   } catch {
-    // On error, only redirect to login if trying to access protected routes
-    if (!isPublicRoute && pathname !== authCallbackRoute) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    return NextResponse.next()
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/dashboard/:path*',
+    '/settings/:path*',
+    '/profile/:path*',
+    '/messages/:path*',
   ],
 }
