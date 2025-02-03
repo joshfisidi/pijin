@@ -6,10 +6,8 @@ import type { NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const next = requestUrl.searchParams.get('next') || '/dashboard'
 
   if (!code) {
-    // Redirect to login if code is missing
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
@@ -22,18 +20,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
 
-    // After successful authentication, redirect to the next URL or dashboard
-    return NextResponse.redirect(new URL(next, request.url), {
-      // 303 See Other - use this to change the request method from POST to GET
+    // After successful authentication, redirect to dashboard
+    const response = NextResponse.redirect(new URL('/dashboard', request.url), {
       status: 303,
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-        'Pragma': 'no-cache',
-      }
     })
+
+    // Add cache control headers to prevent caching
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    response.headers.set('Surrogate-Control', 'no-store')
+
+    return response
   } catch (error) {
     console.error('Callback error:', error)
-    // On any error, redirect to login
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }
