@@ -10,7 +10,7 @@ interface Context {
 
 export async function GET(
   request: NextRequest,
-  { params, searchParams }: Context
+  { params: _params, searchParams }: Context
 ) {
   try {
     const resolvedSearchParams = await searchParams
