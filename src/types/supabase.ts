@@ -1,15 +1,29 @@
-type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
-
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          id: string
+          updated_at: string
+          username: string
+          full_name: string
+          avatar_url: string
+        }
+        Insert: {
+          id: string
+          updated_at?: string
+          username: string
+          full_name: string
+          avatar_url: string
+        }
+        Update: {
+          id?: string
+          updated_at?: string
+          username?: string
+          full_name?: string
+          avatar_url?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
