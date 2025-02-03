@@ -3,12 +3,17 @@ import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-interface RouteParams {
-  searchParams: { [key: string]: string | string[] | undefined }
+type Context = {
+  params: { [key: string]: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export async function GET(request: NextRequest, { searchParams }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  context: Promise<Context>
+) {
   try {
+    const { searchParams } = await context
     const code = searchParams['code'] as string
     const next = (searchParams['next'] as string) || '/dashboard'
 
