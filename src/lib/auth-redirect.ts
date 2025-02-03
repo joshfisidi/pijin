@@ -14,18 +14,25 @@ export function useAuthRedirect() {
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
 
-        // Public routes that don't require auth
-        const publicRoutes = ['/', '/login', '/auth'];
-        const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
-
         if (session) {
-          // If authenticated and on a public route, redirect to dashboard
+          // If user is authenticated
+          if (pathname === "/" || pathname === "") {
+            // Explicitly handle root route
+            router.replace('/dashboard');
+            return;
+          }
+          
+          // Handle other public routes
+          const publicRoutes = ['/login', '/auth'];
+          const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
           if (isPublicRoute) {
             router.replace('/dashboard');
           }
         } else {
-          // If not authenticated and not on a public route, redirect to login
-          if (!isPublicRoute) {
+          // If not authenticated and trying to access protected routes
+          const protectedRoutes = ['/dashboard', '/messages', '/profile', '/settings'];
+          const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+          if (isProtectedRoute) {
             router.replace('/login');
           }
         }
