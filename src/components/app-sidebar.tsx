@@ -1,7 +1,9 @@
 // src/components/app-sidebar.tsx
 "use client"
 
-import { Home, MessageSquare, Users, Settings, LogOut } from "lucide-react"
+import { Home, MessageSquare, Users, Settings, LogOut, User } from "lucide-react"
+import { useEffect, useState } from "react"
+import { createClient } from "@/utils/supabase/client"
 import {
   Sidebar,
   SidebarContent,
@@ -15,43 +17,69 @@ import {
   SidebarGroupLabel,
 } from "@/components/ui/sidebar"
 
-const mainNavItems = [
-  { 
-    title: "Home",
-    icon: Home,
-    href: "/dashboard"
-  },
-  {
-    title: "Messages",
-    icon: MessageSquare,
-    href: "/messages"
-  },
-  {
-    title: "Contacts",
-    icon: Users,
-    href: "/contacts"
-  },
-]
-
-const bottomNavItems = [
-  {
-    title: "Settings",
-    icon: Settings,
-    href: "/settings"
-  },
-  {
-    title: "Logout",
-    icon: LogOut,
-    href: "/auth/logout"
-  }
-]
-
 export function AppSidebar() {
+  const [username, setUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchUserProfile() {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', session.user.id)
+          .single()
+        
+        setUsername(profile?.username || session.user.id)
+      }
+    }
+
+    fetchUserProfile()
+  }, [])
+
+  const mainNavItems = [
+    { 
+      title: "Home",
+      icon: Home,
+      href: "/dashboard"
+    },
+    {
+      title: "Messages",
+      icon: MessageSquare,
+      href: "/messages"
+    },
+    {
+      title: "Contacts",
+      icon: Users,
+      href: "/contacts"
+    },
+    {
+      title: "Profile",
+      icon: User,
+      href: username ? `/user/${username}` : '#'
+    }
+  ]
+
+  const bottomNavItems = [
+    {
+      title: "Settings",
+      icon: Settings,
+      href: "/settings"
+    },
+    {
+      title: "Logout",
+      icon: LogOut,
+      href: "/auth/logout"
+    }
+  ]
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex h-[60px] items-center px-4">
-          <span className="font-semibold">Minimal Messenger</span>
+          <span className="font-semibold">Pijin</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
