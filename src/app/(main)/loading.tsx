@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Progress } from "@/components/ui/progress";
-import { Card } from "@/components/ui/card";
+import { Logo } from "@/components/Logo";
 
 export default function Loading() {
   const [progress, setProgress] = React.useState(10);
@@ -20,19 +20,9 @@ export default function Loading() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-md p-6 space-y-6">
-        <div className="space-y-2">
-          <div className="h-4 w-3/4 bg-muted animate-pulse rounded" />
-          <div className="h-4 w-1/2 bg-muted animate-pulse rounded" />
-        </div>
-        <Progress value={progress} className="w-full" />
-        <div className="space-y-2">
-          <div className="h-4 w-full bg-muted animate-pulse rounded" />
-          <div className="h-4 w-5/6 bg-muted animate-pulse rounded" />
-          <div className="h-4 w-4/6 bg-muted animate-pulse rounded" />
-        </div>
-      </Card>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 space-y-8">
+      <Logo width={150} height={150} />
+      <Progress value={progress} className="w-full max-w-md" />
     </div>
   );
 } 
