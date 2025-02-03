@@ -4,68 +4,46 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // List of public routes that don't require authentication
-const publicRoutes = ['/login', '/auth/callback', '/auth/register', '/']
+const publicRoutes = ['/', '/login', '/auth/register']
+const authCallbackRoute = '/auth/callback'
 
 export async function middleware(request: NextRequest) {
-  // Create base response to ensure headers are set correctly
-  const response = NextResponse.next()
+  const { pathname } = request.nextUrl
 
-  // Set CORS headers
-  response.headers.set('Access-Control-Allow-Origin', '*')
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  
-  // Handle preflight requests
-  if (request.method === 'OPTIONS') {
-    return response
+  // Special handling for auth callback
+  if (pathname === authCallbackRoute) {
+    return NextResponse.next()
   }
 
   // Check if the path is in publicRoutes
-  const isPublicRoute = publicRoutes.some(route => 
-    request.nextUrl.pathname.startsWith(route)
-  )
+  const isPublicRoute = publicRoutes.some(route => pathname === route)
 
   try {
     const supabase = await createClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     // If user is signed in and trying to access auth pages, redirect to dashboard
-    if (session && request.nextUrl.pathname.startsWith('/auth')) {
-      const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url))
-      // Copy headers to redirect response
-      response.headers.forEach((value, key) => {
-        redirectResponse.headers.set(key, value)
-      })
-      return redirectResponse
+    if (session && (pathname.startsWith('/auth') || pathname === '/login')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
     // Allow access to public routes regardless of auth status
     if (isPublicRoute) {
-      return response
+      return NextResponse.next()
     }
 
     // If user is not signed in and trying to access protected routes, redirect to login
-    if (!session) {
-      const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
-      // Copy headers to redirect response
-      response.headers.forEach((value, key) => {
-        redirectResponse.headers.set(key, value)
-      })
-      return redirectResponse
+    if (!session && !isPublicRoute) {
+      return NextResponse.redirect(new URL('/login', request.url))
     }
 
-    return response
+    return NextResponse.next()
   } catch {
     // On error, only redirect to login if trying to access protected routes
-    if (!isPublicRoute) {
-      const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
-      // Copy headers to redirect response
-      response.headers.forEach((value, key) => {
-        redirectResponse.headers.set(key, value)
-      })
-      return redirectResponse
+    if (!isPublicRoute && pathname !== authCallbackRoute) {
+      return NextResponse.redirect(new URL('/login', request.url))
     }
-    return response
+    return NextResponse.next()
   }
 }
 
