@@ -3,13 +3,9 @@
 import * as React from "react";
 import { Progress } from "@/components/ui/progress";
 import { Logo } from "@/components/Logo";
-import { useAuthRedirect } from "@/lib/auth-redirect";
 
 export default function Loading() {
   const [progress, setProgress] = React.useState(10);
-  
-  // Use the auth redirect hook
-  useAuthRedirect();
 
   React.useEffect(() => {
     const timer1 = setTimeout(() => setProgress(45), 100);
@@ -24,13 +20,9 @@ export default function Loading() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="flex flex-col items-center space-y-12 -mt-16">
-        <div className="p-8 rounded-full bg-background/50 backdrop-blur-sm">
-          <Logo width={150} height={150} />
-        </div>
-        <Progress value={progress} className="w-80" />
-      </div>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 space-y-8">
+      <Logo width={150} height={150} />
+      <Progress value={progress} className="w-full max-w-md" />
     </div>
   );
 } 
