@@ -1,11 +1,26 @@
 // src/app/(auth)/layout.tsx
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
 import { ThemeToggle } from "@/components/theme-toggle"
 
-export default function AuthLayout({
+async function getSession() {
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  return session
+}
+
+export default async function AuthLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
+  const session = await getSession()
+  
+  // If user is already authenticated, redirect to dashboard
+  if (session) {
+    redirect('/dashboard')
+  }
+
   return (
     <div className="relative min-h-screen bg-background">
       <div className="absolute right-4 top-4">

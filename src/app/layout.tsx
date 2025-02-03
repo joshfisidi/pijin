@@ -1,98 +1,24 @@
 // app/layout.tsx
-import { ThemeProvider } from "@/components/theme-provider";
-import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
-import "./globals.css";
-import { cn } from "@/lib/utils";
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { ThemeProvider } from '@/components/theme-provider'
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: 'swap',
-  preload: true,
-  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI'], // Fallback fonts
-});
-
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  minimumScale: 1,
-  maximumScale: 5,
-  userScalable: true,
-  viewportFit: 'cover',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' }
-  ],
-};
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: {
-    template: '%s | Pijin',
-    default: 'Pijin',
-  },
-  description: "Connect and collaborate",
-  applicationName: 'Pijin',
-  manifest: '/manifest.json',
-  icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: [
-      { url: '/apple-icon.png' },
-    ],
-  },
-  formatDetection: {
-    telephone: false,
-    date: false,
-    address: false,
-    email: false,
-    url: false,
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Pijin',
-  },
-};
+  title: 'Pijin',
+  description: 'Connect and chat with friends',
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html 
-      lang="en" 
-      suppressHydrationWarning
-      className={cn(
-        geist.variable,
-        "light"
-      )}
-    >
-      <head>
-      <link rel="icon" href="/favicon.ico" sizes="any" />
-      <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-      <link rel="apple-touch-icon" href="/apple-icon.png" />
-      <link rel="manifest" href="/manifest.json" />
-      <meta name="theme-color" content="#ffffff" />
-        
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="theme-color" media="(prefers-color-scheme: light)" content="white" />
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="black" />
-      </head>
-      <body 
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased overflow-x-hidden",
-          // Add mobile-specific styles
-          "touch-manipulation", // Better touch behavior
-          "overscroll-none" // Prevent bouncing on iOS
-        )}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -103,5 +29,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }
