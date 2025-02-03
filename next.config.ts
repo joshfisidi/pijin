@@ -5,7 +5,12 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@acme-corp/ui", "lucide-react"],
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000", "10.0.0.153:3000"],
+      allowedOrigins: [
+        "localhost:3000",
+        "10.0.0.153:3000",
+        "pijin.xyz",
+        "pijin.vercel.app"
+      ],
     },
   },
   images: {
@@ -15,7 +20,7 @@ const nextConfig: NextConfig = {
         hostname: '**',
       },
     ],
-        unoptimized: true,
+    unoptimized: true,
   },
   headers: async () => [
     {
@@ -25,6 +30,9 @@ const nextConfig: NextConfig = {
         { key: 'X-Frame-Options', value: 'DENY' },
         { key: 'X-Content-Type-Options', value: 'nosniff' },
         { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+        { key: 'Access-Control-Allow-Origin', value: process.env.NODE_ENV === 'production' ? 'https://pijin.xyz,https://pijin.vercel.app' : '*' },
+        { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
+        { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
         // Updated Permissions-Policy for mobile features
         { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), accelerometer=(), gyroscope=()' },
         // Cross-browser compatible CSP
@@ -39,6 +47,8 @@ const nextConfig: NextConfig = {
             connect-src 'self' 
               https://fonts.googleapis.com 
               https://fonts.gstatic.com 
+              https://pijin.xyz
+              https://pijin.vercel.app
               http://10.0.0.153:* 
               https://10.0.0.153:*
               ws://10.0.0.153:* 
@@ -64,6 +74,21 @@ const nextConfig: NextConfig = {
       ],
     },
   ],
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'pijin.vercel.app',
+          },
+        ],
+        permanent: true,
+        destination: 'https://pijin.xyz/:path*',
+      },
+    ]
+  },
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     return config;
