@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
 
     // Allow all other requests to proceed
     return NextResponse.next()
-  } catch (error) {
+  } catch {
     // On error accessing protected routes, redirect to login
     if (protectedRoutes.some(route => pathname.startsWith(route))) {
       return NextResponse.redirect(new URL('/login', request.url))
