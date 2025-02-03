@@ -16,8 +16,10 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (error) {
-      console.error('Auth error:', error)
-      return NextResponse.redirect(new URL('/login', request.url))
+      // Redirect to login with error in searchParams
+      const loginUrl = new URL('/login', request.url)
+      loginUrl.searchParams.set('error', 'Authentication failed')
+      return NextResponse.redirect(loginUrl)
     }
 
     // After successful authentication, redirect to dashboard
@@ -32,8 +34,10 @@ export async function GET(request: NextRequest) {
     response.headers.set('Surrogate-Control', 'no-store')
 
     return response
-  } catch (error) {
-    console.error('Callback error:', error)
-    return NextResponse.redirect(new URL('/login', request.url))
+  } catch {
+    // Redirect to login with generic error
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('error', 'Something went wrong')
+    return NextResponse.redirect(loginUrl)
   }
 }

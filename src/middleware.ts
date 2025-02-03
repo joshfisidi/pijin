@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
     }
 
     return NextResponse.next()
-  } catch (error) {
+  } catch {
     // On error, only redirect to login if trying to access protected routes
     if (!isPublicRoute) {
       return NextResponse.redirect(new URL('/login', request.url))
