@@ -1,14 +1,14 @@
 'use client'
 
-import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import GoogleSignIn from "@/components/auth/GoogleSignIn"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import GoogleSignIn from "@/components/auth/GoogleSignIn"
 import { createClient } from '@/utils/supabase/client'
+import * as React from "react"
 
 export function LoginForm() {
   const router = useRouter()
@@ -28,7 +28,7 @@ export function LoginForm() {
           router.replace("/")
         }
       } catch (error) {
-        console.error('Session check error:', error)
+        setError(error instanceof Error ? error.message : 'Failed to check session')
       } finally {
         setIsLoading(false)
       }
@@ -44,12 +44,12 @@ export function LoginForm() {
 
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (error) throw error
+      if (signInError) throw signInError
 
       router.refresh()
     } catch (error) {

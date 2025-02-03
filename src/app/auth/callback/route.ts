@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
     if (error) throw error
 
     return NextResponse.redirect(new URL('/dashboard', request.url))
-  } catch (error) {
-    console.error('Auth callback error:', error)
+  } catch {
+    // Redirect to error page without logging sensitive auth details
     return NextResponse.redirect(new URL('/auth/auth-code-error', request.url))
   }
 }

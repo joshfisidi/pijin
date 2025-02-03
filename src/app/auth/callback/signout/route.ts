@@ -18,8 +18,8 @@ export async function POST(request: NextRequest) {
     response.cookies.set('sb-refresh-token', '', { maxAge: 0 })
     
     return response
-  } catch (error) {
-    console.error('Error during sign out:', error)
+  } catch {
+    // Always redirect to login page on error, without logging sensitive details
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }
