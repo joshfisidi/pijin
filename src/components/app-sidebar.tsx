@@ -2,8 +2,7 @@
 "use client"
 
 import { Home, MessageSquare, Users, Settings, LogOut, User } from "lucide-react"
-import { useEffect, useState } from "react"
-import { createClient } from "@/utils/supabase/client"
+import { useUserProfile } from "@/hooks/use-user-profile"
 import {
   Sidebar,
   SidebarContent,
@@ -18,26 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 
 export function AppSidebar() {
-  const [username, setUsername] = useState<string | null>(null)
-
-  useEffect(() => {
-    async function fetchUserProfile() {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (session) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('id', session.user.id)
-          .single()
-        
-        setUsername(profile?.username || session.user.id)
-      }
-    }
-
-    fetchUserProfile()
-  }, [])
+  const { username, isLoading } = useUserProfile()
 
   const mainNavItems = [
     { 
@@ -58,7 +38,8 @@ export function AppSidebar() {
     {
       title: "Profile",
       icon: User,
-      href: username ? `/user/${username}` : '#'
+      href: username ? `/user/${username}` : '#',
+      disabled: isLoading
     }
   ]
 
@@ -89,7 +70,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild disabled={item.disabled}>
                     <a href={item.href}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
