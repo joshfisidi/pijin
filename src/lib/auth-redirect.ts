@@ -14,22 +14,26 @@ export function useAuthRedirect() {
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
 
-        if (session) {
-          // If user is authenticated
-          if (pathname === "/" || pathname === "") {
-            // Explicitly handle root route
+        // Immediate redirect from root page
+        if (pathname === "/" || pathname === "") {
+          if (session) {
             router.replace('/dashboard');
-            return;
+          } else {
+            router.replace('/login');
           }
-          
-          // Handle other public routes
+          return;
+        }
+
+        // Handle other routes
+        if (session) {
+          // Redirect from public routes if authenticated
           const publicRoutes = ['/login', '/auth'];
           const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
           if (isPublicRoute) {
             router.replace('/dashboard');
           }
         } else {
-          // If not authenticated and trying to access protected routes
+          // Redirect to login if trying to access protected routes
           const protectedRoutes = ['/dashboard', '/messages', '/profile', '/settings'];
           const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
           if (isProtectedRoute) {
