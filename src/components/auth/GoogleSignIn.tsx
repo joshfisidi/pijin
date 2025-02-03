@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { createClient } from '@/utils/supabase/client'
+import { signInWithGoogle } from '@/app/auth/actions'
 
 export default function GoogleSignIn() {
   const [isLoading, setIsLoading] = useState(false)
@@ -13,18 +13,7 @@ export default function GoogleSignIn() {
     try {
       setIsLoading(true)
       setError(null)
-      const supabase = createClient()
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            prompt: 'select_account',
-          },
-        },
-      })
-      if (error) throw error
+      await signInWithGoogle()
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to sign in with Google')
     } finally {
