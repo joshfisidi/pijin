@@ -22,13 +22,19 @@ async function getProfile(username: string) {
   return profile
 }
 
-type Props = {
-  params: { username: string }
-  searchParams: { [key: string]: string | string[] | undefined }
+type PageProps = {
+  params: Promise<{ username: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function UserProfilePage({ params }: Props) {
-  const profile = await getProfile(params.username)
+export default async function UserProfilePage(props: PageProps) {
+  // Await both params and searchParams simultaneously for better performance
+  const [{ username }, _searchParams] = await Promise.all([
+    props.params,
+    props.searchParams
+  ])
+
+  const profile = await getProfile(username)
   
   if (!profile) {
     notFound()
