@@ -15,6 +15,15 @@ export default async function MainLayout({
     redirect('/login')
   }
 
+  // Fetch user's profile data
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('id', session.user.id)
+    .single()
+
+  const username = profile?.username || session.user.id
+
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 container mx-auto px-4 py-8">
@@ -45,7 +54,7 @@ export default async function MainLayout({
             </Link>
 
             <Link 
-              href="/profile" 
+              href={`/user/${username}`}
               className="flex flex-col items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
