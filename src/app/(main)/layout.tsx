@@ -30,11 +30,23 @@ export default async function MainLayout({
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <div className="flex min-h-screen">
-        <AppSidebar />
+        {/* Desktop Sidebar - hidden on mobile, visible on desktop */}
+        <div className="hidden md:block">
+          <AppSidebar collapsible="icon" />
+        </div>
+
         <main className="flex-1">
-          <div className="flex items-center border-b px-4 h-16">
+          {/* Mobile Header with Sidebar Trigger - visible on mobile, hidden on desktop */}
+          <div className="flex items-center border-b px-4 h-16 md:hidden">
             <SidebarTrigger />
           </div>
+
+          {/* Mobile Sidebar - visible when triggered on mobile, hidden on desktop */}
+          <div className="md:hidden">
+            <AppSidebar collapsible="offcanvas" />
+          </div>
+
+          {/* Main Content */}
           <div className="p-8">
             {children}
           </div>

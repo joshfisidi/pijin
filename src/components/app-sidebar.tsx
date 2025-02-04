@@ -16,7 +16,11 @@ import {
   SidebarGroupLabel,
 } from "@/components/ui/sidebar"
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  collapsible?: "icon" | "offcanvas" | "none"
+}
+
+export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
   const { username, isLoading } = useUserProfile()
 
   const mainNavItems = [
@@ -57,7 +61,7 @@ export function AppSidebar() {
   ]
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible={collapsible}>
       <SidebarHeader>
         <div className="flex h-[60px] items-center px-4">
           <span className="font-semibold">Pijin</span>

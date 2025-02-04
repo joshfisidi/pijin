@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@acme-corp/ui", "lucide-react"],
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000", "pijin.xyz", "pijin.vercel.app"],
+      allowedOrigins: ["http://10.0.0.153:3000/", "pijin.xyz", "pijin.vercel.app"],
     },
   },
   images: {
