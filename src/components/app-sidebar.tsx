@@ -35,11 +35,6 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
       href: "/messages"
     },
     {
-      title: "Contacts",
-      icon: Users,
-      href: "/contacts"
-    },
-    {
       title: "Profile",
       icon: User,
       href: username ? `/user/${username}` : '#',

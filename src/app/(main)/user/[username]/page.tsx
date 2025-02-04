@@ -1,62 +1,51 @@
-// src/app/user/[username]/page.tsx
-import { createClient } from '@/utils/supabase/server'
-import { notFound } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+// src/app/(main)/user/[username]/page.tsx
+import { createClient } from '@/utils/supabase/server';
+import { notFound } from 'next/navigation';
+import UserProfileHeader from '@/components/user/UserProfileHeader';
+import UserContent from '@/components/user/UserContent';
 
-export const revalidate = 0 // Disable cache for this page
+export const revalidate = 0; // Disable caching
 
 async function getProfile(username: string) {
-  const supabase = await createClient()
-  
+  const supabase = await createClient();
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('*')
     .eq('username', username)
-    .single()
-    
+    .single();
+
   if (error || !profile) {
-    return null
+    return null;
   }
-  
-  return profile
+
+  return profile;
 }
 
-type PageProps = {
-  params: Promise<{ username: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+interface PageProps {
+  params: { username: string };
 }
 
-export default async function UserProfilePage(props: PageProps) {
-  // Await both params and searchParams simultaneously for better performance
-  const [{ username }, _searchParams] = await Promise.all([
-    props.params,
-    props.searchParams
-  ])
+export default async function UserProfilePage({ params }: PageProps) {
+  const { username } = params;
+  const profile = await getProfile(username);
 
-  const profile = await getProfile(username)
-  
   if (!profile) {
-    notFound()
+    notFound();
   }
 
   return (
-    <Card>
-      <CardHeader className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Avatar className="h-20 w-20">
-            <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
-            <AvatarFallback>{profile.full_name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div>
-            <CardTitle className="text-2xl">{profile.full_name}</CardTitle>
-            <p className="text-sm text-muted-foreground">@{profile.username}</p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {/* Add more profile sections here as needed */}
-      </CardContent>
-    </Card>
-  )
+    <UserContent>
+      <UserProfileHeader
+        avatarUrl={profile.avatar_url}
+        fullName={profile.full_name}
+        username={profile.username}
+      />
+      <div className="max-w-2xl mx-auto mt-6">
+        <h2 className="text-lg font-semibold mb-2">About</h2>
+        <p className="text-muted-foreground">
+          {profile.bio || "No bio available."}
+        </p>
+      </div>
+    </UserContent>
+  );
 }
