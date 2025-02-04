@@ -1,8 +1,9 @@
 // app/(main)/layout.tsx
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { AppSidebar } from '@/components/app-sidebar'
-import { SidebarProvider } from '@/components/ui/sidebar'
+import { cookies } from 'next/headers'
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
 
 async function getSession() {
   const supabase = await createClient()
@@ -22,12 +23,21 @@ export default async function MainLayout({
     redirect('/login')
   }
 
+  // Get sidebar state from cookie
+  const cookieStore = await cookies()
+  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
+
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex">
+    <SidebarProvider defaultOpen={defaultOpen}>
+      <div className="flex min-h-screen">
         <AppSidebar />
-        <main className="flex-1 p-8">
-          {children}
+        <main className="flex-1">
+          <div className="flex items-center border-b px-4 h-16">
+            <SidebarTrigger />
+          </div>
+          <div className="p-8">
+            {children}
+          </div>
         </main>
       </div>
     </SidebarProvider>
