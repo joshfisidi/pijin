@@ -1,10 +1,22 @@
 "use client";
 
 import * as React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Search, User, MessageSquare, Phone } from "lucide-react";
+import { 
+  Activity, 
+  BarChart3, 
+  Bell, 
+  MessageSquare, 
+  Plus, 
+  Search,
+  Settings, 
+  Users,
+  User,
+  Phone
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
@@ -15,9 +27,14 @@ interface Message {
   message: string;
   time: string;
   unread?: number;
+  isActive?: boolean;
+  messageCount?: number;
+  trend?: number;
 }
 
 export default function MessagesPage() {
+  const [searchQuery, setSearchQuery] = React.useState("");
+
   const messages: Message[] = [
     {
       id: 1,
@@ -25,7 +42,10 @@ export default function MessagesPage() {
       avatar: "/avatars/aahad.jpg",
       message: "See you soon bro...",
       time: "10:25 pm",
-      unread: 2
+      unread: 2,
+      isActive: true,
+      messageCount: 156,
+      trend: 12
     },
     {
       id: 2,
@@ -33,14 +53,19 @@ export default function MessagesPage() {
       avatar: "/avatars/marjorie.jpg",
       message: "Voice message",
       time: "10:11 pm",
-      unread: 2
+      unread: 2,
+      isActive: true,
+      messageCount: 89,
+      trend: -5
     },
     {
       id: 3,
       name: "Philip",
       avatar: "/avatars/philip.jpg",
       message: "Where are you...",
-      time: "9:55 pm"
+      time: "9:55 pm",
+      messageCount: 45,
+      trend: 8
     }
   ];
 
@@ -52,33 +77,66 @@ export default function MessagesPage() {
     { id: 5, name: "Fateh", avatar: "/avatars/fateh.jpg" }
   ];
 
-  const [searchQuery, setSearchQuery] = React.useState("");
-
   return (
     <div className="flex flex-col h-full max-w-2xl mx-auto w-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-6">
-        <h1 className="text-2xl font-semibold">buddies</h1>
-        <div className="flex gap-8">
-          <div className="relative">
-            <Input
-              type="search"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-40 rounded-full bg-secondary/50 border-0 pl-9"
-            />
-            <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+      <Card className="rounded-none border-x-0 border-t-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <CardHeader className="p-4">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl">buddies</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Input
+                  type="search"
+                  placeholder="Search buddies..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-40 rounded-full bg-secondary/50 border-0 pl-9"
+                />
+                <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              </div>
+              <div className="relative">
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full text-[10px] text-white flex items-center justify-center">3</span>
+                </Button>
+              </div>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full h-9 w-9">
-            <User className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
+        </CardHeader>
+      </Card>
+
+      {/* Quick Stats */}
+      <Card className="mx-4 mt-4 mb-6">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Activity Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Active Buddies</span>
+            </div>
+            <Badge variant="secondary">12 online</Badge>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stories */}
       <div className="px-4 mb-6">
-        <h2 className="text-lg font-semibold mb-4">Stories</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Stories</h2>
+          <Badge variant="secondary" className="rounded-full">
+            <BarChart3 className="h-3 w-3 mr-1" />
+            +24% views
+          </Badge>
+        </div>
         <ScrollArea className="w-full">
           <div className="flex gap-4 pb-4">
             {stories.map((story) => (
@@ -103,45 +161,58 @@ export default function MessagesPage() {
       </div>
 
       {/* Recent Chats Header */}
-      <div className="flex items-center justify-between px-4 mb-4">
-        <h2 className="text-lg font-semibold">Recent Chats</h2>
-        <Button variant="ghost" size="sm" className="text-muted-foreground text-sm">
-          Archive Chats
-        </Button>
-      </div>
+      <Card className="mx-4 mb-4">
+        <CardHeader className="py-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Recent Chats</CardTitle>
+            <Button variant="ghost" size="sm" className="text-muted-foreground text-sm">
+              Archive Chats
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
 
       {/* Messages List */}
       <ScrollArea className="flex-1 px-4">
         <div className="space-y-4">
           {messages.map((item) => (
-            <div 
-              key={item.id} 
-              className="flex items-center gap-3 hover:bg-accent/5 transition-colors cursor-pointer rounded-lg p-2"
-            >
-              <div className="relative">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={item.avatar} alt={item.name} />
-                  <AvatarFallback>{item.name[0]}</AvatarFallback>
-                </Avatar>
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full ring-2 ring-background" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-semibold">{item.name}</p>
-                  <p className="text-sm text-muted-foreground">{item.time}</p>
-                </div>
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-muted-foreground truncate">
-                    {item.message}
-                  </p>
-                  {item.unread && (
-                    <Badge variant="default" className="rounded-full bg-blue-500 ml-2">
-                      {item.unread}
-                    </Badge>
+            <Card key={item.id} className="hover:bg-accent/5 transition-colors cursor-pointer">
+              <CardContent className="p-2 flex items-center gap-3">
+                <div className="relative">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={item.avatar} alt={item.name} />
+                    <AvatarFallback>{item.name[0]}</AvatarFallback>
+                  </Avatar>
+                  {item.isActive && (
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full ring-2 ring-background" />
                   )}
                 </div>
-              </div>
-            </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold">{item.name}</p>
+                      {item.trend && (
+                        <Badge variant="secondary" className="text-xs">
+                          <BarChart3 className="h-3 w-3 mr-1" />
+                          {item.trend > 0 ? '+' : ''}{item.trend}%
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{item.time}</p>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-muted-foreground truncate">
+                      {item.message}
+                    </p>
+                    {item.unread && (
+                      <Badge variant="default" className="rounded-full bg-blue-500 ml-2">
+                        {item.unread}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </ScrollArea>

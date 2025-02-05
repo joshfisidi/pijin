@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Activity, BarChart3, Bell, MessageSquare, Plus, Settings, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function DashboardPage() {
   // Handle dynamic height adjustments
@@ -32,10 +33,20 @@ export default function DashboardPage() {
       {/* Header - Stack on mobile, row on tablet+ */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between p-4 md:p-6">
         <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
-        <Button className="w-full sm:w-auto flex items-center justify-center gap-2">
-          <Plus className="h-4 w-4" />
-          New Post
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button className="w-full sm:w-auto flex items-center justify-center gap-2">
+            <Plus className="h-4 w-4" />
+            New Post
+          </Button>
+          <div className="relative">
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Bell className="h-5 w-5" />
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                3
+              </Badge>
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Main Layout - Stack on mobile, 3-column on desktop */}
@@ -54,27 +65,45 @@ export default function DashboardPage() {
                 <div className="p-2 bg-primary/10 rounded-lg">
                   <Users className="h-5 w-5 text-primary" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-sm text-muted-foreground">Followers</p>
-                  <p className="text-xl font-bold">1,234</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xl font-bold">1,234</p>
+                    <Badge variant="secondary" className="text-xs">
+                      <BarChart3 className="h-3 w-3 mr-1" />
+                      +12%
+                    </Badge>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-primary/10 rounded-lg">
                   <MessageSquare className="h-5 w-5 text-primary" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-sm text-muted-foreground">Messages</p>
-                  <p className="text-xl font-bold">56</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xl font-bold">56</p>
+                    <Badge variant="secondary" className="text-xs">
+                      <BarChart3 className="h-3 w-3 mr-1" />
+                      +5%
+                    </Badge>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-primary/10 rounded-lg">
-                  <BarChart3 className="h-5 w-5 text-primary" />
+                  <Activity className="h-5 w-5 text-primary" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-sm text-muted-foreground">Engagement</p>
-                  <p className="text-xl font-bold">85%</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xl font-bold">85%</p>
+                    <Badge variant="secondary" className="text-xs">
+                      <BarChart3 className="h-3 w-3 mr-1" />
+                      +8%
+                    </Badge>
+                  </div>
                 </div>
               </div>
             </CardContent>
