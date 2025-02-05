@@ -1,7 +1,7 @@
 // src/components/app-sidebar.tsx
 "use client"
 
-import { Home, MessageSquare, Users, Settings, LogOut, User } from "lucide-react"
+import { Home, MessageSquare, Settings, LogOut, User } from "lucide-react"
 import { useUserProfile } from "@/hooks/use-user-profile"
 import {
   Sidebar,
@@ -58,7 +58,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
   return (
     <Sidebar collapsible={collapsible}>
       <SidebarHeader>
-        <div className="flex h-[60px] items-center px-4">
+        <div className="flex h-[60px] items-center px-8">
           <span className="font-semibold">Pijin</span>
         </div>
       </SidebarHeader>

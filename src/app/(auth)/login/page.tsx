@@ -1,13 +1,35 @@
-import { LoginForm } from '@/components/auth/LoginForm'
-import { Logo } from '@/components/Logo'
+"use client"
+
+import { useSearchParams } from 'next/navigation'
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { LoginForm } from "@/components/auth/LoginForm"
 
 export default function LoginPage() {
+  const searchParams = useSearchParams()
+  const error = searchParams.get('error')
+  const redirectTo = searchParams.get('redirectTo')
+
   return (
-    <div className="min-h-screen w-full flex flex-col items-center px-4 py-8">
-      <div className="w-full max-w-sm mx-auto flex flex-col items-center space-y-8">
-        <Logo width={150} height={150} />
-        <LoginForm />
-      </div>
-    </div>
+    <Card className="w-full">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl">Welcome back</CardTitle>
+        <CardDescription>
+          Sign in to your account to continue
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>
+              {error === 'Authentication failed' 
+                ? 'Failed to authenticate. Please try again.' 
+                : error}
+            </AlertDescription>
+          </Alert>
+        )}
+        <LoginForm redirectTo={redirectTo || '/dashboard'} />
+      </CardContent>
+    </Card>
   )
 }

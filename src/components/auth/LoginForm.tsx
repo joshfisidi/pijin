@@ -16,51 +16,66 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { createClient } from "@/utils/supabase/client"
 import * as React from "react"
+import { useState } from "react"
+import { Label } from "@/components/ui/label"
+import { Icons } from "@/components/ui/icons"
 
-export function LoginForm() {
+interface LoginFormProps {
+  redirectTo?: string;
+}
+
+export function LoginForm({ redirectTo = '/dashboard' }: LoginFormProps) {
   const router = useRouter()
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [email, setEmail] = React.useState("")
-  const [password, setPassword] = React.useState("")
-  const [error, setError] = React.useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   React.useEffect(() => {
+    setMounted(true)
     const checkSession = async () => {
-      setIsLoading(true)
       try {
         const supabase = createClient()
-        const {
-          data: { session },
-        } = await supabase.auth.getSession()
+        const { data: { session } } = await supabase.auth.getSession()
         if (session) {
           router.replace("/")
         }
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Failed to check session")
-      } finally {
-        setIsLoading(false)
       }
     }
     checkSession()
   }, [router])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError(null)
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
     setIsLoading(true)
+    setError(null)
+
     try {
       const supabase = createClient()
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-      if (signInError) throw signInError
-      router.refresh()
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An error occurred during sign in")
+
+      if (signInError) {
+        setError(signInError.message)
+        return
+      }
+
+      router.push(redirectTo)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Only render form content after initial mount
+  if (!mounted) {
+    return null
   }
 
   return (
@@ -74,7 +89,6 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6 p-6">
-        {/* Google sign-in with a modern slide-in accent */}
         <div className="animate-slide-in-from-left">
           <GoogleSignIn />
         </div>
@@ -85,30 +99,37 @@ export function LoginForm() {
           </span>
           <div className="flex-grow border-t border-gradient-to-r from-brand to-purple-400" />
         </div>
-        <form onSubmit={handleSubmit} className="grid gap-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           {error && (
-            <div className="text-sm text-red-500 text-center animate-fade-in">
+            <div className="text-sm text-destructive text-center">
               {error}
             </div>
           )}
-          <Input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={isLoading}
-            required
-            className="transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-brand focus:ring-offset-2"
-          />
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
-            required
-            className="transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-brand focus:ring-offset-2"
-          />
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="m@example.com"
+              required
+              disabled={isLoading}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              disabled={isLoading}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="remember"
@@ -127,7 +148,9 @@ export function LoginForm() {
             className="w-full transition-transform duration-200 ease-in-out hover:scale-105"
             disabled={isLoading}
           >
-            {isLoading ? "Signing in..." : "Sign in"}
+            {isLoading ? (
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+            ) : "Sign In"}
           </Button>
         </form>
       </CardContent>
