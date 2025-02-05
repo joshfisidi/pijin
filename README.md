@@ -42,7 +42,7 @@ Pijin App is a local chat platform that connects you with people in your area in
 
 > *Replace the placeholder URLs below with your actual screenshot image links*
 
-![Pijin Home Screen](https://via.placeholder.com/600x400?text=Pijin+Home+Screen)  
+![Pijin Home Screen](/public/preview/dashboard.png)  
 ![Local Chat Example](https://via.placeholder.com/600x400?text=Local+Chat+Example)  
 ![Neighborhood Feed](https://via.placeholder.com/600x400?text=Neighborhood+Feed)
 
