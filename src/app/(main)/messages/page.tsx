@@ -59,7 +59,7 @@ export default function MessagesPage() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-6">
         <h1 className="text-2xl font-semibold">buddies</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-8">
           <div className="relative">
             <Input
               type="search"
