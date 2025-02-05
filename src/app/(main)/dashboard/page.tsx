@@ -8,10 +8,29 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Activity, BarChart3, Bell, MessageSquare, Plus, Settings, Users } from "lucide-react";
 
 export default function DashboardPage() {
+  // Handle dynamic height adjustments
+  const [contentHeight, setContentHeight] = React.useState("100dvh");
+
+  // Update height on mount and resize
+  React.useEffect(() => {
+    const updateHeight = () => {
+      const headerHeight = 80; // 20px * 4 for p-4 md:p-6
+      const navigationHeight = 64; // Typical bottom nav height
+      const safeArea = 'env(safe-area-inset-bottom, 0px)';
+      
+      // Use dynamic viewport height and subtract known heights
+      setContentHeight(`calc(100dvh - ${headerHeight}px - ${navigationHeight}px - ${safeArea})`);
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
+
   return (
-    <div className="min-h-screen p-4 md:p-6 bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       {/* Header - Stack on mobile, row on tablet+ */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between p-4 md:p-6">
         <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
         <Button className="w-full sm:w-auto flex items-center justify-center gap-2">
           <Plus className="h-4 w-4" />
@@ -20,9 +39,12 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Layout - Stack on mobile, 3-column on desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+      <div 
+        className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 p-4 md:px-6 flex-1 overflow-hidden"
+        style={{ height: contentHeight }}
+      >
         {/* Stats Cards - Horizontal scroll on mobile, vertical on desktop */}
-        <div className="md:col-span-3 flex md:block gap-4 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0">
+        <div className="md:col-span-3 flex md:flex-col gap-4 overflow-x-auto md:overflow-y-auto scrollbar-hide">
           <Card className="flex-shrink-0 w-[280px] md:w-auto">
             <CardHeader>
               <CardTitle className="text-lg">Quick Stats</CardTitle>
@@ -60,9 +82,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Main Feed - Full width on mobile, center on desktop */}
-        <div className="md:col-span-6">
-          <ScrollArea className="h-[calc(100vh-12rem)]">
-            <div className="space-y-4">
+        <div className="md:col-span-6 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="space-y-4 pr-4">
               {[1, 2, 3].map((item) => (
                 <Card key={item}>
                   <CardContent className="pt-6">
@@ -95,7 +117,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Sidebar - Grid on mobile, stack on desktop */}
-        <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4">
+        <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4 md:overflow-y-auto scrollbar-hide">
           {/* Notifications */}
           <Card>
             <CardHeader>
@@ -145,7 +167,7 @@ export default function DashboardPage() {
                 </Button>
               </div>
             </CardContent>
-      </Card>
+          </Card>
         </div>
       </div>
     </div>
