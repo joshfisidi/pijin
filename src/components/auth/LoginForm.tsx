@@ -158,7 +158,7 @@ export function LoginForm({ redirectTo = '/dashboard' }: LoginFormProps) {
         <p className="text-center text-sm text-gray-500">
           Don&apos;t have an account?{" "}
           <Link
-            href="/auth/register"
+            href="/register"
             className="font-semibold text-brand hover:underline transition-colors"
           >
             Sign up
