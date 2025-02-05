@@ -3,6 +3,8 @@ import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://10.0.0.153:3000'
+
 interface Context {
   params: Promise<{ [key: string]: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -18,7 +20,7 @@ export async function GET(
     const next = (resolvedSearchParams['next'] as string) || '/dashboard'
 
     if (!code) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      return NextResponse.redirect(new URL('/login', BASE_URL))
     }
 
     const supabase = await createClient()
@@ -28,13 +30,13 @@ export async function GET(
     
     if (error) {
       // If there's an error, redirect to login with error message
-      const loginUrl = new URL('/login', request.url)
+      const loginUrl = new URL('/login', BASE_URL)
       loginUrl.searchParams.set('error', 'Authentication failed')
       return NextResponse.redirect(loginUrl)
     }
 
     // Successful auth - redirect to dashboard with 303 to ensure GET request
-    const redirectUrl = new URL(next, request.url)
+    const redirectUrl = new URL(next, BASE_URL)
     const response = NextResponse.redirect(redirectUrl, {
       status: 303,
     })
@@ -44,9 +46,10 @@ export async function GET(
     response.headers.set('Pragma', 'no-cache')
 
     return response
-  } catch {
+  } catch (error) {
+    console.error('Auth callback error:', error)
     // On any error, redirect to login
-    const loginUrl = new URL('/login', request.url)
+    const loginUrl = new URL('/login', BASE_URL)
     loginUrl.searchParams.set('error', 'Something went wrong')
     return NextResponse.redirect(loginUrl)
   }

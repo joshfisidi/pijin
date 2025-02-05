@@ -1,5 +1,5 @@
 export function getAuthCallbackUrl() {
-  const siteUrl = process.env['NEXT_PUBLIC_SITE_URL'] || 'http://10.0.0.153:3000/'
+  const siteUrl = process.env['NEXT_PUBLIC_SITE_URL'] || 'http://10.0.0.153:3000'
   const callbackPath = process.env['NEXT_PUBLIC_AUTH_CALLBACK'] || '/auth/callback'
   return `${siteUrl}${callbackPath}`
 }

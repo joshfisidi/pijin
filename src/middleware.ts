@@ -4,12 +4,21 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Protected routes require authentication
-const protectedRoutes = ['/dashboard', '/settings', '/profile', '/messages']
+const protectedRoutes = ['/dashboard', '/settings', '/profile', '/messages', '/user']
 // Auth routes are only accessible when logged out
-const authRoutes = ['/login', '/auth']
+const authRoutes = ['/login', '/signup', '/auth']
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // In development, bypass auth checks
+  if (process.env.NODE_ENV === 'development') {
+    // Only redirect root to dashboard
+    if (pathname === '/') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+    return NextResponse.next()
+  }
 
   try {
     const supabase = await createClient()
