@@ -1,266 +1,123 @@
 "use client"
 
-import * as React from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  Activity,
-  BarChart3,
-  Bell,
-  MessageSquare,
-  Plus,
-  Search,
-  Settings,
-  Users,
-  User,
-  Phone,
-  Menu,
-} from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Send, Menu } from "lucide-react"
 
-interface Message {
-  id: number
-  name: string
-  avatar?: string
-  message: string
-  time: string
-  unread?: number
-  isActive?: boolean
-  messageCount?: number
-  trend?: number
-}
+const conversations = [
+  { id: 1, name: "Alice Johnson", lastMessage: "Hey, how are you?", time: "2m ago", unread: 2 },
+  { id: 2, name: "Bob Smith", lastMessage: "Can we meet tomorrow?", time: "1h ago", unread: 0 },
+  { id: 3, name: "Charlie Brown", lastMessage: "Thanks for your help!", time: "3h ago", unread: 1 },
+]
 
-export default function MessagesPage() {
-  const [searchQuery, setSearchQuery] = React.useState("")
+const messages = [
+  { id: 1, sender: "Alice Johnson", content: "Hey, how are you?", time: "2:30 PM" },
+  { id: 2, sender: "You", content: "I'm good, thanks! How about you?", time: "2:31 PM" },
+  { id: 3, sender: "Alice Johnson", content: "Doing well! Just wanted to catch up.", time: "2:32 PM" },
+]
 
-  const messages: Message[] = [
-    {
-      id: 1,
-      name: "Aahad",
-      avatar: "/avatars/aahad.jpg",
-      message: "See you soon bro...",
-      time: "10:25 pm",
-      unread: 2,
-      isActive: true,
-      messageCount: 156,
-      trend: 12,
-    },
-    {
-      id: 2,
-      name: "Marjorie",
-      avatar: "/avatars/marjorie.jpg",
-      message: "Voice message",
-      time: "10:11 pm",
-      unread: 2,
-      isActive: true,
-      messageCount: 89,
-      trend: -5,
-    },
-    {
-      id: 3,
-      name: "Philip",
-      avatar: "/avatars/philip.jpg",
-      message: "Where are you...",
-      time: "9:55 pm",
-      messageCount: 45,
-      trend: 8,
-    },
-  ]
-
-  const stories = [
-    { id: 1, name: "Add Story", isAdd: true },
-    { id: 2, name: "Aahad", avatar: "/avatars/aahad.jpg" },
-    { id: 3, name: "Wasim", avatar: "/avatars/wasim.jpg" },
-    { id: 4, name: "Asim", avatar: "/avatars/asim.jpg" },
-    { id: 5, name: "Fateh", avatar: "/avatars/fateh.jpg" },
-  ]
+export default function DirectMessages() {
+  const [selectedConversation, setSelectedConversation] = useState(conversations[0] || {
+    id: 0,
+    name: "No Conversation",
+    lastMessage: "",
+    time: "",
+    unread: 0
+  })
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
-    <div className="flex flex-col h-screen max-w-md mx-auto bg-background">
-      {/* Header */}
-      <Card className="rounded-none border-x-0 border-t-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
-        <CardHeader className="p-4">
-          <div className="flex items-center justify-between">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-                <nav className="flex flex-col gap-4">
-                  <Button variant="ghost" className="justify-start gap-2">
-                    <MessageSquare className="h-5 w-5" />
-                    Messages
-                  </Button>
-                  <Button variant="ghost" className="justify-start gap-2">
-                    <Users className="h-5 w-5" />
-                    Groups
-                  </Button>
-                  <Button variant="ghost" className="justify-start gap-2">
-                    <Activity className="h-5 w-5" />
-                    Activity
-                  </Button>
-                  <Button variant="ghost" className="justify-start gap-2">
-                    <Settings className="h-5 w-5" />
-                    Settings
-                  </Button>
-                </nav>
-              </SheetContent>
-            </Sheet>
-            <CardTitle className="text-2xl">buddies</CardTitle>
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full text-[10px] text-white flex items-center justify-center">
-                  3
-                </span>
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Settings className="h-5 w-5" />
-              </Button>
-            </div>
+    <div className="h-screen flex flex-col md:flex-row">
+      <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+        <SheetContent side="left" className="w-80 p-0">
+          <div className="p-4 font-semibold text-lg flex items-center justify-between">
+            <span>Messages</span>
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsSidebarOpen(false)}>
+              <Menu className="h-6 w-6" />
+            </Button>
           </div>
-        </CardHeader>
-      </Card>
-
-      {/* Search */}
-      <div className="px-4 py-2 sticky top-[73px] z-10 bg-background">
-        <div className="relative">
-          <Input
-            type="search"
-            placeholder="Search buddies..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-full bg-secondary/50 border-0 pl-9"
-          />
-          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <ScrollArea className="flex-1 px-4">
-        {/* Quick Stats */}
-        <Card className="my-4">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Activity Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Active Buddies</span>
-              </div>
-              <Badge variant="secondary">12 online</Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Stories */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Stories</h2>
-            <Badge variant="secondary" className="rounded-full">
-              <BarChart3 className="h-3 w-3 mr-1" />
-              +24% views
-            </Badge>
-          </div>
-          <ScrollArea className="w-full">
-            <div className="flex gap-4 pb-4">
-              {stories.map((story) => (
-                <div key={story.id} className="flex flex-col items-center gap-2">
-                  <div className={`relative ${!story.isAdd ? "ring-2 ring-offset-2 ring-green-400" : ""} rounded-full`}>
-                    {story.isAdd ? (
-                      <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
-                        <Plus className="h-6 w-6" />
-                      </div>
-                    ) : (
-                      <Avatar className="w-16 h-16">
-                        <AvatarImage src={story.avatar} alt={story.name} />
-                        <AvatarFallback>{story.name[0]}</AvatarFallback>
-                      </Avatar>
-                    )}
+          <ScrollArea className="h-[calc(100vh-5rem)]">
+            {conversations.map((conversation) => (
+              <button
+                key={conversation.id}
+                className={`w-full text-left p-4 hover:bg-accent flex items-center space-x-4 ${
+                  selectedConversation.id === conversation.id ? "bg-accent" : ""
+                }`}
+                onClick={() => {
+                  setSelectedConversation(conversation)
+                  setIsSidebarOpen(false)
+                }}
+              >
+                <Avatar>
+                  <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${conversation.name}`} />
+                  <AvatarFallback>
+                    {conversation.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-baseline">
+                    <p className="text-sm font-medium truncate">{conversation.name}</p>
+                    <span className="text-xs text-muted-foreground">{conversation.time}</span>
                   </div>
-                  <span className="text-sm">{story.name}</span>
+                  <p className="text-sm text-muted-foreground truncate">{conversation.lastMessage}</p>
                 </div>
-              ))}
-            </div>
+                {conversation.unread > 0 && (
+                  <span className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded-full">
+                    {conversation.unread}
+                  </span>
+                )}
+              </button>
+            ))}
           </ScrollArea>
-        </div>
-
-        {/* Recent Chats Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Recent Chats</h2>
-          <Button variant="ghost" size="sm" className="text-muted-foreground text-sm">
-            Archive Chats
-          </Button>
-        </div>
-
-        {/* Messages List */}
-        <div className="space-y-4">
-          {messages.map((item) => (
-            <Card key={item.id} className="hover:bg-accent/5 transition-colors cursor-pointer">
-              <CardContent className="p-2 flex items-center gap-3">
-                <div className="relative">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={item.avatar} alt={item.name} />
-                    <AvatarFallback>{item.name[0]}</AvatarFallback>
-                  </Avatar>
-                  {item.isActive && (
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full ring-2 ring-background" />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold">{item.name}</p>
-                      {item.trend && (
-                        <Badge variant="secondary" className="text-xs">
-                          <BarChart3 className="h-3 w-3 mr-1" />
-                          {item.trend > 0 ? "+" : ""}
-                          {item.trend}%
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">{item.time}</p>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm text-muted-foreground truncate">{item.message}</p>
-                    {item.unread && (
-                      <Badge variant="default" className="rounded-full bg-blue-500 ml-2">
-                        {item.unread}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        </SheetContent>
+      </Sheet>
+      <main className="flex-1 flex flex-col">
+        <header className="border-b p-4 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsSidebarOpen(true)}>
+              <Menu className="h-6 w-6" />
+            </Button>
+            <Avatar>
+              <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${selectedConversation.name}`} />
+              <AvatarFallback>
+                {selectedConversation.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </AvatarFallback>
+            </Avatar>
+            <h2 className="font-semibold">{selectedConversation.name}</h2>
+          </div>
+        </header>
+        <ScrollArea className="flex-1 p-4">
+          {messages.map((message) => (
+            <div key={message.id} className={`flex mb-4 ${message.sender === "You" ? "justify-end" : ""}`}>
+              <div
+                className={`max-w-[70%] ${message.sender === "You" ? "bg-primary text-primary-foreground" : "bg-muted"} rounded-lg p-3`}
+              >
+                <p className="text-sm">{message.content}</p>
+                <span className="text-xs opacity-50 mt-1 block">{message.time}</span>
+              </div>
+            </div>
           ))}
-        </div>
-      </ScrollArea>
-
-      {/* Bottom Navigation */}
-      <div className="mt-auto border-t sticky bottom-0 bg-background">
-        <div className="flex justify-around p-4">
-          <Button variant="default" className="rounded-full px-8 bg-gradient-to-r from-blue-400 to-blue-600">
-            <MessageSquare className="h-5 w-5 mr-2" />
-            Chat
-          </Button>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <User className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Phone className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
+        </ScrollArea>
+        <footer className="border-t p-4">
+          <form className="flex space-x-2" onSubmit={(e) => e.preventDefault()}>
+            <Input placeholder="Type a message..." className="flex-1" />
+            <Button type="submit" size="icon">
+              <Send className="h-4 w-4" />
+              <span className="sr-only">Send message</span>
+            </Button>
+          </form>
+        </footer>
+      </main>
     </div>
   )
 }
