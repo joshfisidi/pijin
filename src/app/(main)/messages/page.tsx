@@ -229,8 +229,8 @@ export default function Home() {
         </header>
 
         {/* Messages Area */}
-        <ScrollArea className="flex-grow px-4 py-6 md:py-4">
-          <div className="space-y-4 max-w-3xl mx-auto">
+        <ScrollArea className="flex-1 px-4">
+          <div className="space-y-4 max-w-3xl mx-auto py-6">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -316,13 +316,13 @@ export default function Home() {
         </ScrollArea>
 
         {/* Message Input */}
-        <footer className="p-4 border-t border-border shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <footer className="p-4 border-t border-border mt-auto bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <form
             onSubmit={(e) => {
               e.preventDefault()
               sendMessage()
             }}
-            className="flex gap-2 max-w-3xl mx-auto"
+            className="flex gap-2 max-w-3xl mx-auto items-center"
           >
             <Input
               type="text"
@@ -331,7 +331,7 @@ export default function Home() {
               onChange={(e) => setInputMessage(e.target.value)}
               className="flex-1"
             />
-            <Button type="submit" size="icon">
+            <Button type="submit" size="icon" className="shrink-0">
               <Send className="h-4 w-4" />
               <span className="sr-only">Send message</span>
             </Button>
