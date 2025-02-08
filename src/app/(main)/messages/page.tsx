@@ -144,22 +144,23 @@ export default function Home() {
   )
 
   return (
-    <main className="flex h-screen bg-background text-foreground">
+    <main className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Sidebar */}
-      <aside className="w-full sm:w-64 border-r border-border">
-        <div className="p-4 flex justify-between items-center">
+      <aside className="w-full max-w-xs border-r border-border flex flex-col">
+        <div className="p-4 flex justify-between items-center border-b border-border">
           <h1 className="text-xl font-bold">Contacts</h1>
           <ModeToggle />
         </div>
-        <div className="px-4 mb-4">
+        <div className="px-4 py-2 border-b border-border">
           <Input
             type="search"
             placeholder="Search contacts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full"
           />
         </div>
-        <ScrollArea className="h-[calc(100vh-8rem)]">
+        <ScrollArea className="flex-grow">
           {filteredContacts.map((contact) => (
             <Button
               key={contact.id}
@@ -192,8 +193,8 @@ export default function Home() {
       </aside>
 
       {/* Main chat area */}
-      <section className="flex-1 flex flex-col">
-        <header className="p-4 border-b border-border">
+      <section className="flex-1 flex flex-col min-w-0">
+        <header className="p-4 border-b border-border shrink-0">
           <div className="flex items-center">
             <Avatar className="h-8 w-8 mr-2">
               <AvatarImage src={selectedContact.avatar} alt={selectedContact.name} />
@@ -207,29 +208,27 @@ export default function Home() {
             </div>
           </div>
         </header>
-        <ScrollArea className="flex-1 p-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`mb-4 ${message.sender === "user" ? "text-right" : "text-left"}`}
-            >
-              <div className="flex flex-col">
+        <ScrollArea className="flex-grow p-4">
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex flex-col ${message.sender === "user" ? "items-end" : "items-start"}`}
+              >
                 <div
-                  className={`inline-block p-2 rounded-lg ${
+                  className={`max-w-[80%] p-3 rounded-lg ${
                     message.sender === "user"
                       ? "bg-primary text-primary-foreground"
                       : "bg-secondary text-secondary-foreground"
                   }`}
                 >
-                  {message.text}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {format(message.timestamp, "HH:mm")}
-                  {message.sender === "user" && (
-                    <span className="ml-2">
-                      {message.read ? "✓✓" : "✓"}
-                    </span>
-                  )}
+                  <p>{message.text}</p>
+                  <div className="text-xs opacity-70 mt-1">
+                    {format(message.timestamp, "HH:mm")}
+                    {message.sender === "user" && (
+                      <span className="ml-2">{message.read ? "✓✓" : "✓"}</span>
+                    )}
+                  </div>
                 </div>
                 {message.reactions.length > 0 && (
                   <div className="flex gap-1 mt-1">
@@ -249,44 +248,44 @@ export default function Home() {
                     ))}
                   </div>
                 )}
+                {message.sender !== "user" && (
+                  <div className="flex gap-1 mt-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => addReaction(message.id, "❤️")}
+                    >
+                      <Heart className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => addReaction(message.id, "👍")}
+                    >
+                      <ThumbsUp className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => addReaction(message.id, "😊")}
+                    >
+                      <Smile className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
-              {message.sender !== "user" && (
-                <div className="flex gap-1 mt-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={() => addReaction(message.id, "❤️")}
-                  >
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={() => addReaction(message.id, "👍")}
-                  >
-                    <ThumbsUp className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={() => addReaction(message.id, "😊")}
-                  >
-                    <Smile className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
           {isTyping && (
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground mt-2">
               {selectedContact.name} is typing...
             </div>
           )}
         </ScrollArea>
-        <footer className="p-4 border-t border-border">
+        <footer className="p-4 border-t border-border shrink-0">
           <form
             onSubmit={(e) => {
               e.preventDefault()
