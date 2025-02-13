@@ -1,0 +1,49 @@
+name: Deploy Supabase
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  pull_request:
+    branches:
+      - main
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      PROJECT_ID: ${{ github.ref == 'refs/heads/main' && secrets.PROD_PROJECT_ID || secrets.STAGING_PROJECT_ID }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link to Supabase project
+        run: |
+          supabase link --project-ref $PROJECT_ID
+        
+      - name: Run database migrations
+        if: github.event_name == 'push'
+        run: |
+          supabase db push
+        
+      - name: Run tests
+        if: github.event_name == 'pull_request'
+        run: |
+          supabase db reset
+          supabase test db
+          
+      - name: Deploy Edge Functions
+        if: github.event_name == 'push'
+        run: |
+          supabase functions deploy --project-ref $PROJECT_ID 

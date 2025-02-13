@@ -17,12 +17,13 @@
 - [Support](#support)
 - [License](#license)
 - [Contact](#contact)
+- [Supabase Local Development](#supabase-local-development)
 
 ---
 
 ## Introduction
 
-Pijin App is a local chat platform that connects you with people in your area instantly. Whether you’re chatting with neighbors on your street, staying updated on neighborhood events, or meeting new friends across the city, Pijin makes local communication fast, fun, and effortless.
+Pijin App is a local chat platform that connects you with people in your area instantly. Whether you're chatting with neighbors on your street, staying updated on neighborhood events, or meeting new friends across the city, Pijin makes local communication fast, fun, and effortless.
 
 *Connect. Chat. Discover your community.*
 
@@ -32,8 +33,8 @@ Pijin App is a local chat platform that connects you with people in your area in
 
 - **Local Chats:** Engage in street-level conversations and exchange recommendations right on your block.
 - **Neighborhood & City-Wide Groups:** Stay in the loop with local events and discover hidden spots as you move about.
-- **Auto-Syncing:** As you travel, Pijin updates your channels automatically, ensuring you’re always connected with nearby communities.
-- **Fun & Fast Communication:** Send “Pijins” – short, preset question prompts with emoji, GIF, or image responses.
+- **Auto-Syncing:** As you travel, Pijin updates your channels automatically, ensuring you're always connected with nearby communities.
+- **Fun & Fast Communication:** Send "Pijins" – short, preset question prompts with emoji, GIF, or image responses.
 - **Secure & Ad-Free:** Enjoy a privacy-focused chat experience with no intrusive ads.
 
 ---
@@ -51,7 +52,7 @@ Download Pijin App for free on the [App Store](https://apps.apple.com/us/app/pij
 **Android Users:**  
 *Coming Soon!* Stay tuned for the Android release.
 
-If you’re interested in contributing to the project or setting it up locally for development, please refer to our [CONTRIBUTING.md](CONTRIBUTING.md) file for instructions.
+If you're interested in contributing to the project or setting it up locally for development, please refer to our [CONTRIBUTING.md](CONTRIBUTING.md) file for instructions.
 
 ---
 
@@ -61,7 +62,7 @@ If you’re interested in contributing to the project or setting it up locally f
    Create an account with your valid US phone number.
 
 2. **Create or Join a Chat:**  
-   - Start a new “Coop” (group chat) by inviting friends.
+   - Start a new "Coop" (group chat) by inviting friends.
    - Join channels for your street, neighborhood, or across the city.
    
 3. **Send a Pijin:**  
@@ -83,7 +84,7 @@ If you’re interested in contributing to the project or setting it up locally f
 
 ## Contributing
 
-Contributions are welcome! If you’d like to help improve Pijin App, please check out our contribution guidelines in [CONTRIBUTING.md](CONTRIBUTING.md).  
+Contributions are welcome! If you'd like to help improve Pijin App, please check out our contribution guidelines in [CONTRIBUTING.md](CONTRIBUTING.md).  
 When submitting issues or pull requests, kindly adhere to our code of conduct.
 
 ---
@@ -111,3 +112,69 @@ Email: [support@pijin.app](mailto:support@pijin.app)
 ---
 
 *Thank you for choosing Pijin App – where local connections come alive!*
+
+## Supabase Local Development
+
+### Prerequisites
+- Docker and Docker Compose
+- Supabase CLI (`npm install -g supabase`)
+- Node.js 18+
+
+### Local Setup
+
+1. Start the local Supabase stack:
+```bash
+docker-compose up -d
+```
+
+2. Initialize the database:
+```bash
+supabase db reset
+```
+
+3. Set up your environment variables:
+```bash
+cp .env.development .env.local
+```
+
+4. Start the development server:
+```bash
+npm run dev
+```
+
+The local Supabase stack will be available at:
+- Studio: http://localhost:54323
+- API: http://localhost:54321
+- Database: postgresql://postgres:postgres@localhost:54322/postgres
+
+### Database Migrations
+
+Create a new migration:
+```bash
+supabase migration new <migration-name>
+```
+
+Apply migrations:
+```bash
+supabase db push
+```
+
+### CI/CD Pipeline
+
+The project uses GitHub Actions for CI/CD. The following secrets need to be set in your GitHub repository:
+
+- `SUPABASE_ACCESS_TOKEN`: Your Supabase access token
+- `SUPABASE_DB_PASSWORD`: Database password for your Supabase project
+- `PROD_PROJECT_ID`: Production project reference ID
+- `STAGING_PROJECT_ID`: Staging project reference ID
+
+The pipeline will:
+1. Run tests on pull requests
+2. Apply migrations on merge to staging/main
+3. Deploy edge functions on merge to staging/main
+
+### Environment Management
+
+- Development: Local Supabase instance
+- Staging: Staging project on Supabase Platform
+- Production: Production project on Supabase Platform
